@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Visualization of MIPhy results.">
+    <meta name="author" content="Dave Curran">
+    <title>MIPhy results</title>
+
+    <!-- Need to get these paths in a platform-independent manner.-->
+    <!-- Not sure what this is, but i'd need a local copy:
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
+    ^^ -->
+    <!-- i might want to move this jquery call to the bottom? Never want to use the cached version. -->
+    <script src="static/libs/jquery-1.11.1.min.js"></script>
+    <script src="static/libs/jquery-ui.min.js"></script>
+    <script src="static/libs/raphael-min.js"></script>
+    <!--<script src="static/libs/FileSaver.min.js"></script>-->
+    <!--<script src="static/libs/jsphylosvg-DC-min.js"></script>-->
+    <script src="static/libs/jsphylosvg-DC.js"></script>
+    <script src="static/libs/sorttable.js"></script>
+    <script src="static/libs/jscolor.min.js"></script>
+    <script src="static/libs/svg-pan-zoom.min.js"></script>
+
+    <!--<link rel="stylesheet" href="static/bootstrap.min.css">-->
+    <link rel="stylesheet" href="static/libs/jquery-ui.min.css">
+    <link rel="stylesheet" href="static/libs/jquery-ui.theme.min.css">
+
+    <script>
+      var timestamp = +new Date;
+      var url1 = 'static/css/core.css?v=' + timestamp;
+      var url2 = 'static/css/results.css?v=' + timestamp;
+      var iconurl = 'static/images/favicon.ico?v=' + timestamp;
+      $('<link>')
+        .appendTo('head')
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', url1);
+      $('<link>')
+        .appendTo('head')
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', url2);
+      $('<link>')
+        .appendTo('head')
+        .attr({rel : 'icon'})
+        .attr('href', iconurl);
+    </script>
+    <!--<link rel="stylesheet" href="static/core.css?v=0.1.13">
+    <link rel="stylesheet" href="static/results.css?v=0.1.15">
+    <link rel="icon" href="static/images/favicon.ico">-->
+    <!--For development, change the v to force reload. For production releases, set to the python version number.-->
+  </head>
+
+  <body class="light-bg">
+    <div id="pageDiv">
+      <div id="header" class="dark-bg">
+        <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
+        <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
+        <ul id="navBar"> <!--Need ids?-->
+          <li><a id="navHome" href="/" target="_blank">Home</a></li>
+          <li><a id="navDocs" href="/docs" target="_blank">Documentation</a></li>
+          <li><a id="navContact" href="/contact" target="_blank">Contact us</a></li>
+        </ul>
+        <div class="clearfix"></div>
+      </div>
+      <div id="mainBody">
+        <div id="leftPane">
+          <div id="summaryPane" class="style-box">
+            <h2>Summary stats</h2>
+            <table id="summaryTable">
+              <thead><tr>
+                <th></th>
+                <th>Count</th>
+                <th>Instability</th>
+              </tr></thead>
+              <tbody id="summaryStatsTable"></tbody>
+            </table>
+          </div>
+          <div id="parametersPane" class="style-box">
+            <h2>Parameter weights</h2>
+            <table id="parametersTable"><tbody>
+              <tr>
+                <td><label for="dups-spinner">Duplication</label></td>
+                <td><input id="dups-spinner" class="param-spinner" /></td>
+                <td><label for="loss-spinner">Loss</label></td>
+                <td><input id="loss-spinner" class="param-spinner" /></td>
+              </tr>
+              <tr>
+                <td><label for="ils-spinner">Incongruence</label></td>
+                <td><input id="ils-spinner" class="param-spinner" /></td>
+                <td><label for="spread-spinner">Spread</label></td>
+                <td><input id="spread-spinner" class="param-spinner" /></td>
+              </tr>
+            </tbody></table>
+            <button id="paramReclusterButton">Recluster</button>
+            <button id="paramResetButton">Reset parameters</button>
+            <button id="paramPreviousButton">Previous</button>
+          </div>
+          <div id="clustersPane" class="style-box">
+            <h2 id="numClusters">Clusters</h2>
+            <table id="clustersTable" class="sortable">
+              <thead>
+                <tr><th class="sorttable_numeric">Instability</th>
+                <th class="sorttable_numeric">Size</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="treePane">
+          <div id="treeContainer" class="style-box">
+            <h2>Clustered tree</h2>
+
+            <form id="controlsDiv" onsubmit="return searchFunction();">
+              <label id="searchHitsText" class=""></label>
+              <button id="searchButton" class="cont-element cont-pair-left"><span class="ui-icon ui-icon-search"></span></button><!-- Needed to remove whitespace between this and the button. Because the parent uses a display:inline.
+              --><input id="searchInput" name="searchInput" class="cont-element cont-pair-right search-input" size="14" placeholder="Search sequences" onkeyup="this.setAttribute('value', this.value);" value="" />
+              <button id="clearSearchButton" type="reset" class="search-clear">X</button>
+              <div style="clear:both;"></div>
+              <button id="zoomOutButton" class="cont-element cont-pair-left">-</button><!--
+              --><button id="zoomInButton" class="cont-element cont-pair-right">+</button>
+              <button id="zoomResetButton" class="cont-element">Reset</button>
+            </form>
+
+            <svg id="figureSvg" xmlns="http://www.w3.org/2000/svg" version="1.1">
+              <g id="treeGroup" class="svg-pan-zoom_viewport"></g>
+            </svg>
+            <div id="legendSvgCanvas"></div>
+            <div id="svgCanvas"></div>
+          </div>
+
+          <div id="optExportPane">
+          <div id="optionsPane" class="style-box">
+            <h2>Display options</h2>
+            <table id="optionsTable"><tbody>
+              <tr>
+                <td><label for="font-spinner">Tree font size</label></td>
+                <td><input id="font-spinner" class="opt-spinner" /></td>
+                <td><label for="node-spinner">Tree node size</label></td>
+                <td><input id="node-spinner" class="opt-spinner" /></td>
+              </tr>
+              <tr>
+                <td><label for="tree-spinner">Tree width</label></td>
+                <td><input id="tree-spinner" class="opt-spinner" /></td>
+                <td><label for="spc-bar-spinner">Species bar height</label></td>
+                <td><input id="spc-bar-spinner" class="opt-spinner" /></td>
+              </tr>
+              <tr>
+                <td><label for="bar-spinner">Bar chart height</label></td>
+                <td><input id="bar-spinner" class="opt-spinner" /></td>
+                <td><label for="highlight-spinner">Cluster padding</label></td>
+                <td><input id="highlight-spinner" class="opt-spinner" /></td>
+              </tr>
+              <tr>
+                <td><select id="species-colour-select" onchange="speciesSelectChange(this.value)"></select></td>
+                <td><input id="species-colour" class="jscolor {closable:true,closeText:'Close'}" onchange="speciesColourChange(this.jscolor)" /></td>
+                <td><label for="cluster-colour">Cluster colour</label></td>
+                <td><input id="cluster-colour" class="jscolor {closable:true,closeText:'Close'}" /></td>
+              </tr>
+              <tr>
+                <td><label for="search-colour">Search hit colour</label></td>
+                <td><input id="search-colour" class="jscolor {closable:true,closeText:'Close'}" /></td>
+                <td><label for="highlight-colour">Highlight colour</label></td>
+                <td><input id="highlight-colour" class="jscolor {closable:true,closeText:'Close'}" /></td>
+              </tr>
+              <tr>
+                <td><label for="bar-colour">Bar chart colour</label></td>
+                <td><input id="bar-colour" class="jscolor {closable:true,closeText:'Close'}" /></td>
+                <td><label for="background-colour">Name background</label></td>
+                <td><input id="background-colour" class="jscolor {closable:true,closeText:'Close'}" /></td>
+              </tr>
+            </tbody></table>
+            <button id="redrawButton">Redraw Tree</button>
+            <button id="saveButton">Save Image</button>
+          </div>
+          <div id="exportPane" class="style-box">
+            <h2>Export data</h2>
+            <p>Export instability values for every gene from the indicated species
+              to a comma-separated file.</p>
+            <div id="exportCheckboxes"></div>
+            <button id="exportButton">Save scores</button>
+            <label><input id="exportSelectAll" type="checkbox" checked /><b>Select all</b></label>
+          </div>
+          </div>
+
+          <div id="detailsPane" class="style-box">
+            <h2>Usage details</h2>
+            <div class="clearfix"></div>
+            <p>This program analyzes the phylogenetic tree of a multi-species gene family, reconciles it with the given species tree, and the clusters it based on the most parsimonious reconciliation. More details can be found on the Documentation page.</p>
+            <h3>Definitions</h3>
+            <p><b>Duplication:</b> The cost associated with the duplication of some locus in an ancestral species.</p>
+            <p><b>Loss:</b> The cost associated with the loss of some locus in an ancestral species.</p>
+            <p><b>Incongruence:</b> The cost of an event that has caused the gene tree to differ from the species tree. The event itself is not specified, and may be due to a lineage- or gene-specific change in selective pressure, horizontal gene transfer, incomplete lineage sorting, or something else.</p>
+            <p><b>Spread:</b> The cost associated with including dissimilar sequences into one cluster. This is measured by the standard deviation of the cluster; to calculate this the tree is transformed into a set of points in Euclidean space that respect the pairwise phylogenetic distances.</p>
+            <p><b>Relative spread:</b> The spread of a cluster divided by the average spread of all clusters, modified to be centered around zero. A relative spread of -0.3 indicates that a cluster has a spread 30% smaller than the average for that tree, 1.0 indicates that it is double the average, and 0.0 is exactly equal to the average.</p>
+            <h3>Features</h3>
+            <p>Click on any sequence name, entry in the <b>Clusters</b> list, or cluster in the tree to view more information about it.</p>
+            <p>The <b>Clusters</b> list can be sorted by Instability score or cluster size by clicking on the appropriate header.</p>
+            <p>The tree can be panned using the mouse, or zoomed in by scrolling or by the <b>-</b> and <b>+</b> buttons in the top-right corner of the tree. The <b>Reset</b> button returns both to their defaults. Sequence names can be searchged using the input field.</p>
+            <p>The <b>Previous</b> button allows two paramater configurations to be easily compared.</p>
+            <p>To analyze a new file with the local version of MIPhy without closing the current page, use the button below to end your session:</p>
+            <button id="quitButton">End current session</button>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div id="footerDiv" class="dark-bg">
+        <p>&copy; 2016 David Curran</p>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+
+    <!-- <script src="static/bootstrap.min.js"></script> Bootstrap tooltips conflict with jQueryUI tooltips.-->
+    <!-- <script src="static/results.js"></script> Uncomment for production-->
+    <script>
+      var timestamp = +new Date;
+      var url = "static/js/results.js?t=" + timestamp;
+      $.getScript(url);
+    </script> <!-- TEMP LOAD. Replace with standard load for production. -->
+  </body>
+</html>

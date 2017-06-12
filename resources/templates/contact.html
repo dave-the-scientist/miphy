@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MIPhy web portal">
+    <meta name="author" content="Dave Curran">
+    <title>MIPhy</title>
+    <script src="static/libs/jquery-1.11.1.min.js"></script>
+    <script src="static/libs/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="static/libs/jquery-ui.min.css">
+    <link rel="stylesheet" href="static/libs/jquery-ui.theme.min.css">
+    <script>
+      var timestamp = +new Date;
+      var url1 = 'static/css/core.css?v=' + timestamp;
+      var url2 = 'static/css/contact.css?v=' + timestamp;
+      var iconurl = 'static/images/favicon.ico?v=' + timestamp;
+      $('<link>')
+        .appendTo('head')
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', url1);
+      $('<link>')
+        .appendTo('head')
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', url2);
+      $('<link>')
+        .appendTo('head')
+        .attr({rel : 'icon'})
+        .attr('href', iconurl);
+    </script>
+  </head>
+  <body class="light-bg">
+    <div id="pageDiv">
+
+      <div id="header" class="dark-bg">
+        <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
+        <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
+        <ul id="navBar"> <!--Need ids?-->
+          <li><a id="navHome" href="/" target="_blank">Home</a></li>
+          <li><a id="navDocs" href="/docs" target="_blank">Documentation</a></li>
+          <li><a id="navContact" href="/contact" target="_blank">Contact us</a></li>
+        </ul>
+        <div class="clearfix"></div>
+      </div>
+
+      <div id="mainBody">
+        <p>Content goes here.</p>
+
+        <div class="clearfix"></div>
+      </div>
+
+      <div id="footerDiv" class="dark-bg">
+        <p>&copy; 2016 David Curran</p>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+    <!-- <script src="static/js/upload.js"></script> -->
+    <script>
+      var timestamp = +new Date;
+      var url = "static/js/contact.js?t=" + timestamp;
+      $.getScript(url);
+    </script>
+  </body>
+</html>

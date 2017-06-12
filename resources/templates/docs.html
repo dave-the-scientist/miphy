@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MIPhy web portal">
+    <meta name="author" content="Dave Curran">
+    <title>MIPhy documentation</title>
+    <script src="static/libs/jquery-1.11.1.min.js"></script>
+    <script src="static/libs/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="static/libs/jquery-ui.min.css">
+    <link rel="stylesheet" href="static/libs/jquery-ui.theme.min.css">
+    <script>
+      var timestamp = +new Date;
+      var url1 = 'static/css/core.css?v=' + timestamp;
+      var url2 = 'static/css/docs.css?v=' + timestamp;
+      var iconurl = 'static/images/favicon.ico?v=' + timestamp;
+      $('<link>')
+        .appendTo('head')
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', url1);
+      $('<link>')
+        .appendTo('head')
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', url2);
+      $('<link>')
+        .appendTo('head')
+        .attr({rel : 'icon'})
+        .attr('href', iconurl);
+    </script>
+  </head>
+  <body class="light-bg">
+    <div id="pageDiv">
+      <div id="header" class="dark-bg">
+        <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
+        <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
+        <ul id="navBar"> <!--Need ids?-->
+          <li><a id="navHome" href="/" target="_blank">Home</a></li>
+          <li><a id="navDocs" href="/docs" target="_blank">Documentation</a></li>
+          <li><a id="navContact" href="/contact" target="_blank">Contact us</a></li>
+        </ul>
+        <div class="clearfix"></div>
+      </div>
+      <div id="mainBody">
+        <!--Can I make these collapsable? -->
+        <div id="aboutPane" class="style-box">
+          <h2>About MIPhy</h2>
+          <p>Welcome to MIPhy, a tool to quantify phylogenetic instability in trees of multi-species gene families. This page will take you through the process of using MIPhy. It can also be downloaded as a stand-alone program HERE.</p>
+          <p>MIPhy requires two input files: a rooted gene tree and an information file containing the species relationships and a mapping indicating which species each gene is from. These two sets of example files are available for download, to test the web or the downloaded versions of MIPhy. The info files in particular may be useful as a guide for constructing your own files.</p>
+          <ul>
+            <li><b>Small example files:</b> <a href="/tests/ugts_small.nwk" download>ugts_small.nwk</a> and <a href="/tests/ugts_info.txt" download>ugts_info.txt</a></li>
+            <li><b>Large example files:</b> <a href="/tests/vert_cyps.nwk" download>vert_cyps.nwk</a> and <a href="/tests/vert_cyps_info.txt" download>vert_cyps_info.txt</a></li>
+          </ul>
+          <p>MIPhy is free to use and download, but if you find it useful it in your research please cite: Citation Coming Soon&trade;.</p>
+        </div>
+
+        <div id="algorithmPane" class="style-box">
+          <h2>The algorithm</h2>
+          <p>The most parsimonious sequence of gene duplication, loss, and incongruence events is mapped on to the internal nodes of the given gene tree. A score for each node is calculated as the weighted sum of these gene events in that node's descendants; these descendant sequences would be considered to be in the same phylogenetic group, and would each receive the same score. The clustering algorithm identifies the lowest-scoring set of phylogenetic groups such that each sequence in the tree is contained in exactly one group.</p>
+        </div>
+
+        <div id="resultsTutorialPane" class="style-box">
+          <h2>Tutorial</h2>
+          <h3>Submitting the files online</h3>
+          <p>First, download the two small test files above (ugts_small.nwk and ugts_info.txt). Then, open the Home page. In the <b>MIPhy inputs</b> box, you will see two upload buttons. Find where you downloaded those test files, and upload ugts_small.nwk as the gene tree and ugts_info.txt as the info file.</p>
+          <p>Leave the weights at their default values, and hit the <b>Upload files and run MIPhy</b> button. You should see the text in the <b>Upload summary</b> box change to reflect the files that you uploaded. Click the <b>View results</b> button, which will open the results page in a new tab.</p>
+          <h3>Running MIPhy locally</h3>
+          <p>Download the files from the Github page in the <b>About MIPhy</b> box above, and see the README file for installation instructions. Once MIPhy is installed, move into the 'tests' directory of the downloaded package. Begin MIPhy with the command: 'miphy ugts_small.nwk ugts_info.txt'.</p>
+          <h3>Explanation of results page</h3>
+          <p>You should see the gene tree displayed in the middle of the page, with the species of each gene indicated by colour in the legend, the tree nodes, and the bar that is the perimeter of the tree. The clusters are indicated by the light orange shapes on the tree, and the instability score of each by the bar graph around the outside of the tree.</p>
+          <p>Notice that one cluster is much more unstable than the rest (at the 12:00 position). Hover your mouse over it, and you will see the corresponding entry in the <b>Clusters</b> list light up. Click on the cluster on the tree or in that list and an information window will appear. This cluster contains 6 genes from 2 species, 4 from green and 2 from brown, which the legend tells us are <i>C. brenneri</i> and <i>C. remanei</i>, respectively. You can also see that reconciling this cluster with the species tree required 4 duplication and 2 gene loss events, and the <b>Relative spread</b> field indicates that the genes in this cluster are 68% more spread out than the average. The interpretation would be that there is likely something unique in the environments of <i>C. brenneri</i> and <i>C. remanei</i> compared to the other two nematodes, and the proteins in this cluster may be responding to it; for this particular gene family, they would likely function by metabolizing some environmental toxin.</p>
+          <p>You will see the <b>Parameter weights</b> panel on the left side of the screen, which modifies the impact of each event when calculating the clusters and instability scores. The default parameters tend to be quite robust, but if you raise the duplication weight to 2.2 and click <b>Recluster</b> you will see the unstable cluster split up into 3. Click <b>Reset parameters</b> to return to the originally specified values, and then click <b>Previous</b> several times to switch back and forth between the parameter sets. You will also notice that the instability bars appear to increase for every cluster, though this is only because the height is relative to the most unstable cluster, and there is no clear unstable cluster anymore. In general, increasing the duplication or decreasing the loss weights will cause clusters to split up, as will increasing incongruence or spread weights, though at a slower rate.</p>
+          <h3>Vertebrate Cytochrome P450 example</h3>
+          <p>For a real-world example, run MIPhy on the two large test files (vert_cyps.nwk and vert_cyps_info.txt). This is a larger data set, consisting of 628 cytochrome P450 (Cyp) proteins from 10 species of vertebrate. It was originally generated by <a href="https://www.ncbi.nlm.nih.gov/pubmed/17500592" target="_blank">(Thomas, 2007)</a>, and is analyzed in some depth in the MIPHy publication.</p>
+          <p>You should see that these sequences are grouped into 47 clusters, with an average cluster score of 8.20, and an average sequence score of 26.66. That these two averages are so different indicates that the score distribution of the clusters is quite skewed; in this case we have many small clusters with very low scores, and a small number of large clusters with very high scores. This skew is characteristic of the gene family under consideration. The Cyps are known to be split relatively evenly between stable and unstable genes, but your gene family may differ.</p>
+          <p>Let us first look at the human protein Cyp2C9, which is important in the metabolism of the drug ibuprofin and other NSAIDs. You will notice that MIPhy has hidden the sequence names for this larger data set, in order to better visualize the structure of the tree itself. If you wish, you can enable the labels by scrolling down to the <b>Display options</b> panel and increasing the 'Tree font size'; you will likely have to also increase the 'Tree width' in order to stop the labels from overlapping. For now leave the 'Tree font size' at 0, type '2c9' into the search box in the top-right corner of the tree pane, and press Enter or click the magnifying glass icon. You should see that there is only 1 hit to this query, and if you scroll down you can see it highlighted in green at the bottom of the tree.</p>
+          <p>You will notice that this is the most unstable cluster in the tree, so let us take a closer look at what's going on. Zoom in on this sequence by scrolling your mouse or using the <b>+</b> button in the top-right corner of the tree, and drag the view around with your mouse so that you can see it and the legend tree at the same time. Notice that Cyp2C9 is part of three doubles of human and macaque sequences next to each other, with no other species between them. The interpretation would be that the ancestral mammalian species possessed the ancestor of these proteins. This ancestral population split into two groups: the descendants of the first include humans and macaques, and the descendants of the second include the other animals in the tree. The ancestral protein was duplicated twice in the human/macaque population at some point after that split, but before the population split again to become modern humans and macaques. One hypothesis from these observations is that these 6 proteins provide a function that is important to the primates, but not to the other mammals.</p>
+          <p> You can see a similar situation to the left of Cyp2C9, with the cluster of 9 mouse and 2 rat sequences. These proteins may have originated from the same ancestor protein as Cyp2C9, but the short internal branches of this section of the tree make it difficult to be certain. Regardless, some protein was duplicated many times in mouse to give rise to these 9 sequences. It isn't clear whether these duplications happened in the ancestor of mouse and rat and were then lost in rat, or whether they happened only in mouse in the relatively short period of time separating these rodents.</p>
+          <p>Click on this cluster, and notice that while it contains 100 sequences, they come from only 8 species, and there are none from purple or white, which the legend indicates are the two species of fish. If you then examine the cluster immediately to the left (score 6.69), you will see it contains one sequence each from the fish, and 6 from frog. It isn't clear whether this cluster should be on its own (meaning that the terrestrial vertebrates lost their version of the protein after the branching off of the amphibians) or merged with the previous unstable cluster. It is likely that there is some combination of weights that would instead suggest this alternate history.</p>
+          <p>As a final example, find Cyp2W1 in the tree, and notice that the mammalian sequences look quite stable (though the cow sequence is displaced; this could be evidence of a pseudogene or intron/exon errors). We then have 3 proteins from chicken, 16 from frog, and 4 and 10 from the two species of fish. This expansion in these particular species may indicate these genes are involved with living in an aquatic environment, and is an example of the type of hypothesis MIPhy was designed to generate.</p>
+        </div>
+
+        <div id="faqsPane" class="style-box">
+          <h2>FAQ</h2>
+          <h3>My gene tree is unrooted, is that ok?</h3>
+          <p>Sort of. The visualization library MIPhy uses to draw the trees requires that your tree is rooted, so the MIPhy results page can't be loaded if it isn't. However, you can analyze it with the downloaded version if you include the "-r" flag to specify a results file, which skips the results page entirely.</p>
+          <h3>How many sequences can MIPhy process?</h3>
+          <p>The online server has two built-in limits: it will disable the optional refinement step if you upload a tree with more than 3,000 sequences, and will not run at all for trees with more than 10,000 sequences. The downloaded version has no limits. Note that with either version it may take several minutes to load the results page with more than 5,000 sequences, and the performance of the results controls may start to break down.</p>
+          <h3>How can I make MIPhy run faster?</h3>
+          <p>MIPhy proceeds in two phases: the main clustering algorithm which is generally very fast, followed by an optional refinement step that can be much slower (it involves calculating a pairwise distance matrix, which takes exponential time on the number of genes). Analyzing 5,500 sequences from 58 species on a 2.4GHz laptop as an example, the first phase took 30 seconds, the refinement phase took 7 minutes, and loading the results in Chrome took 1.5 minutes.</p>
+          <h3>What does MiphyValidationError mean?</h3>
+          <p>This error means there was an issue reading one of the two input files. One common reason is that some popular viewing software (such as FigTree) adds single quotes around the names of some or all sequences. You can use miphy-tools 'clean' to remove these.</p>
+          <h3>When closing the local version of MIPhy, what does "[Errno 32] Broken pipe" mean?</h3>
+          <p>The MIPhy process communicates with a small local server it initializes to host the results page, which in turn communicates with your browser window. When you close the browser all of the processes should close in a normal sequence, but as they are independent sometimes one exits slightly before it was expected to, resulting in this error. It should be safe to ignore, especially if it only seems to appear sporadically.</p>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div id="footerDiv" class="dark-bg">
+        <p>&copy; 2017 David Curran</p>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+
+    <!--<script src="static/js/upload.js"></script>-->
+    <script>
+      var timestamp = +new Date;
+      var url = "static/js/docs.js?t=" + timestamp;
+      $.getScript(url);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MIPhy web portal">
+    <meta name="author" content="Dave Curran">
+    <title>MIPhy</title>
+    <script src="static/libs/jquery-1.11.1.min.js"></script>
+    <script src="static/libs/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="static/libs/jquery-ui.min.css">
+    <link rel="stylesheet" href="static/libs/jquery-ui.theme.min.css">
+    <script>
+      var timestamp = +new Date;
+      var url1 = 'static/css/core.css?v=' + timestamp;
+      var url2 = 'static/css/index.css?v=' + timestamp;
+      var iconurl = 'static/images/favicon.ico?v=' + timestamp;
+      $('<link>')
+        .appendTo('head')
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', url1);
+      $('<link>')
+        .appendTo('head')
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', url2);
+      $('<link>')
+        .appendTo('head')
+        .attr({rel : 'icon'})
+        .attr('href', iconurl);
+    </script>
+  </head>
+  <body class="light-bg">
+    <div id="pageDiv">
+
+      <div id="header" class="dark-bg">
+        <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
+        <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
+        <ul id="navBar"> <!--Need ids?-->
+          <li><a id="navHome" href="/" target="_blank">Home</a></li>
+          <li><a id="navDocs" href="/docs" target="_blank">Documentation</a></li>
+          <li><a id="navContact" href="/contact" target="_blank">Contact us</a></li>
+        </ul>
+        <div class="clearfix"></div>
+      </div>
+
+      <div id="mainBody">
+        <div id="detailsPane" class="style-box">
+          <h2>Welcome</h2>
+          <p>Welcome to MIPhy, a tool to quantify phylogenetic instability in
+          trees of multi-species gene families. Check out the Documentation tab
+          above for more details and for a tutorial on how to use MIPhy. It
+          can also be downloaded as a stand-alone program HERE.</p>
+          <p>Note: the parameter weights are set once you press the upload button.</p>
+        </div>
+        <div class="clearfix"></div>
+
+        <div id="parametersPane" class="style-box">
+          <h2>MIPhy inputs</h2>
+          <table id="parametersTable"><tbody>
+            <tr>
+              <td><label for="dups-spinner">Duplication</label></td>
+              <td><input id="dups-spinner" class="param-spinner" /></td>
+              <td><label for="loss-spinner">Loss</label></td>
+              <td><input id="loss-spinner" class="param-spinner" /></td>
+            </tr>
+            <tr>
+              <td><label for="ils-spinner">Incongruence</label></td>
+              <td><input id="ils-spinner" class="param-spinner" /></td>
+              <td><label for="spread-spinner">Spread</label></td>
+              <td><input id="spread-spinner" class="param-spinner" /></td>
+            </tr>
+          </tbody></table>
+          <button id="paramResetButton">Reset weights</button>
+          <label><input id="spreadRefinementCheck" type="checkbox" checked /><b>Spread refinement</b></label>
+          <form id="upload-files" method="post" enctype="multipart/form-data">
+            <label for="tree-file"><b>Upload a gene tree file</b></label>
+            <input id="upload-tree-input" name="tree-file" type="file">
+            <div class="clearfix"></div>
+            <label for="info-file"><b>Upload an information file</b></label>
+            <input id="upload-info-input" name="info-file" type="file">
+          </form>
+          <button id="uploadButton" type="button"><b>Upload files and run MIPhy</b></button>
+        </div>
+
+        <div id="viewPane" class="style-box">
+          <h2>Upload summary</h2>
+          <div id="summaryText">
+            <p>No files uploaded.</p>
+          </div>
+          <button id="viewResultsButton">View results</button>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+
+      <div id="footerDiv" class="dark-bg">
+        <p>&copy; 2016 David Curran</p>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+    <!-- <script src="static/js/index.js"></script> -->
+    <script>
+      var timestamp = +new Date;
+      var url = "static/js/index.js?t=" + timestamp;
+      $.getScript(url);
+    </script>
+  </body>
+</html>
