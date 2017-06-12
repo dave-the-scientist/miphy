@@ -1,8 +1,7 @@
 import os, sys, threading
 from collections import deque
 from random import randint
-from flask import Flask, request, render_template, json, send_from_directory
-from flask import make_response, send_file # testing.
+from flask import Flask, request, render_template, json
 from scripts.miphy_instance import MiphyInstance, MiphyValidationError
 
 if sys.version_info >= (3,0): # Python 3.x imports
@@ -19,11 +18,9 @@ else: # Python 2.x imports
 
 
 # Add a graphic to the home page. Possibly of some random tree, possibly of a MIPhy tree.
-# Ensure the graphed conclusions of vert_cyps2.nwk (which I re-rooted) are the same as the original tree.
 # Spread weight gets diluted out with more species, as you tend to have more events per cluster. Might want to set spread = 0.25 * num_species as default.
   # Or maybe not. On vert cyps @(0.5,1.5,0.5), going from spread=1 to spread=2 introduces some singletons as expected, but also leads to the giant cluster. I feel like it shouldn't do that.
 # If you just save a tree using figtree instead of exporting it, it stores a bunch of info that looks like a seq name, but messes up subsequent analysis. Check for this.
-# I'd still like ugt28,29,30 to be a single cluster at default values. Combinations of lowering duplications, penalizing loss, and lowering spread achieve this. Look into this more.
 # Towards meta-analysis of weight combinations: of the ways to produce a clustering pattern, that with the lowest total score should be kept.
 #   Analyzing the different combs might yield a prediction for the high-low boundary. There may be a point in the list where the same x sequences are always (or most commonly) above it no matter the weights. I expect the unstable genes to move around in their rankings, but probably not the stable ones so much. Could also yield reasonable parameter values.
 
@@ -146,10 +143,7 @@ class Daemon(object):
             except Exception as err:
                 return (str(err), 551)
             numseqs = self.sessions[idnum].num_sequences
-            spc = self.sessions[idnum].species # # TESTING
-            #spcdata = self.sessions[idnum].species_tree_data # # TESTING
-            #self.signals.append('upload:%s'%idnum) # # TESTING
-            # Currently upload.js uses idnum, action_msg, action_info, numseqs, but not the others.
+            spc = self.sessions[idnum].species
             action_msg, action_info = '', ''
             if self.server_max_seqs and numseqs > self.server_max_seqs:
                 action_msg = 'over seq limit'
@@ -189,9 +183,6 @@ class Daemon(object):
             params = (float(request.form['ILS']), float(request.form['dups']),
                     float(request.form['loss']), float(request.form['spread']))
             mi.cluster(params)
-            #cluster_list = [ [mi.scores[params][clstr[0]][0], \ # Object created by mi.cluster() call.
-            #    mi.scores[params][clstr[0]][1], len(clstr), clstr] \
-            #    for clstr in mi.clusters[params]]
             return json.dumps(mi.cluster_list[params])
         @self.server.route(daemonURL('/page-loaded'), methods=['POST'])
         def page_loaded():
@@ -213,25 +204,16 @@ class Daemon(object):
             if not self.web_server and len(self.sessions) == 0:
                 self.should_quit.set()
             return 'instance-closed successful.'
-        # # #  TESTING CODE
         @self.server.route('/docs')
         def render_docs():
             return render_template('/docs.html')
         @self.server.route('/contact')
         def render_contact():
             return render_template('/contact.html')
+        # # #  TESTING CODE
         @self.server.route('/monitor')
         def render_monitor():
             return render_template('/monitor.html')
-        @self.server.route('/tests/<path:filename>')
-        def serve_test_files(filename):
-            print(filename)
-            tests_dir = os.path.join(os.getcwd(), 'tests')
-            if not os.path.isfile(os.path.join(tests_dir, filename)):
-                return ('test file not found on the server', 454)
-            #return send_from_directory(os.path.join(os.path.abspath('.'), 'tests'), filename)
-            return send_from_directory(tests_dir, filename)
-            #return 'file sent'
         # # #  END OF TESTING.
 
     def new_instance(self, gene_tree_data, info_data, use_coords=True, coords_file=''):

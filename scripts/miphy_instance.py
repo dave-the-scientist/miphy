@@ -3,7 +3,6 @@ import xml.etree.ElementTree as ET
 from scripts.convert import NewickToPhyloxml
 from scripts.clusterer import Clusterer
 
-# If there is a species in the info file, but the name is different between tree and mapping, it's not caught until way too late. check here.
 
 class MiphyInstance(object):
     def __init__(self, gene_tree_data, info_data, allowed_wait, use_coords, coords_file, verbose, refine_limit=None):
