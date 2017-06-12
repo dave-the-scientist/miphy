@@ -5,8 +5,6 @@ from flask import Flask, request, render_template, json, send_from_directory
 from flask import make_response, send_file # testing.
 from scripts.miphy_instance import MiphyInstance, MiphyValidationError
 
-import time
-
 if sys.version_info >= (3,0): # Python 3.x imports
     from io import StringIO
     from tkinter import Tk as tk_root

@@ -4,7 +4,6 @@
 import os
 import numpy as np
 from scripts import newick_to_coords
-import time
 
 
 class Clusterer(object):

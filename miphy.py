@@ -8,15 +8,15 @@ groups. These groups each receive an instability score, used as a proxy of
 adaptive evolution, indicating those that are most likely to be interacting with
 the environment.
 """
-import sys, os, subprocess, threading, webbrowser, socket
+import os, webbrowser, socket
 from optparse import OptionParser, OptionGroup
 from scripts import miphy_daemon
 from scripts.miphy_instance import MiphyInstance
 
-import time
 
 __author__ = 'David Curran'
 __version__ = '0.8.0'
+
 
 def setup_parser():
     usage_str = "python %prog GENE_TREE.nwk INFO_FILE.txt [OPTIONS]\n\nPerform clustering on a gene tree, and score each cluster in terms of phylogenetic stability."
