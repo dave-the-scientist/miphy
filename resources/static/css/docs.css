@@ -1,0 +1,5 @@
+/* CSS for the MIPhy docs.html page.*/
+
+#aboutPane, #resultsTutorialPane, #algorithmPane, #faqsPane {
+  width: 850px;
+}

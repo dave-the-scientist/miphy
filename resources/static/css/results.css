@@ -1,0 +1,166 @@
+/*
+======  Styles using the main colours  ======
+*/
+tbody tr.clusterRow.hover,
+.cont-element:active,
+#searchButton {
+  background-color: #FF9800;
+}
+/*
+======  General formatting options  ======
+*/
+.sequence-tooltip, .cluster-tooltip {
+  /*font-size: 15pt;*/
+  color: black;
+  border: 2px solid #212121;
+  border-radius: 4px;
+  box-shadow: 1px 1px 2px #888888;
+}
+/*
+======  Tree zoom and search formatting options  ======
+*/
+#searchHitsText {
+  margin: 0px;
+  vertical-align: middle;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+#controlsDiv {
+  position: absolute;
+  right: 8px;
+  margin-top: 5.5px;
+  display: inline-block;
+  text-align: right;
+  border: 0px solid #000000;
+  padding: 0px;
+}
+.cont-element {
+  vertical-align: middle;
+  margin: 2.5px 0px;
+  padding: 0px 5px;
+  height: 25px;
+  border: 1px solid #000000;
+  background-color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+.cont-pair-left {
+  border-right: 0px;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+.cont-pair-right {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.cont-element::-moz-focus-inner {
+  border: 0;
+}
+#searchInput {
+  height: 23px; /*Needs to be 2*border-width smaller than the button.*/
+  background-color: #ffffff;
+}
+.search-clear {
+  border:1px solid transparent;
+  outline: 0;
+  width: 20px;
+	height: 19px;
+	background-color: #FF9800;
+  position: absolute;
+	z-index: 1;
+	right: 3px;
+  top: 3px;
+	padding: 0px;
+	border-radius: 50%;
+	text-align: center;
+	color: white;
+	font-weight: normal;
+	font-size: 12px;
+	cursor: pointer;
+  /*box-shadow: 0 0 2px #E50F0F;
+  margin: auto;
+  display: inline;
+  vertical-align: middle;
+  */
+}
+.search-input[value=""] ~ .search-clear {
+  display: none;
+}
+
+#species-colour-select {
+  max-width: 110px;
+}
+#treeContainer {
+  position: relative;
+}
+
+#svgCanvas {
+  position: relative;
+  /*top: 60px;*/
+}
+#summaryPane {
+  clear: both;
+}
+#summaryTable td:nth-child(1) {
+  text-align: left;
+}
+#leftPane {
+  position: absolute;
+}
+#parametersPane, #clustersPane, #summaryPane, #leftPane {
+  /*width: 240px;*/
+  width: 260px;
+}
+#treePane {
+  /*Should be 40px larger than parametersPane width.*/
+  margin-left: 300px;
+}
+#paramReclusterButton {
+  width: 100%;
+  text-align: center;
+}
+#paramResetButton {
+  float:left;
+  text-align: center;
+  width: 55%;
+}
+#paramPreviousButton {
+  float: right;
+  text-align: center;
+  width: 37%;
+}
+#clustersTable {
+  border-collapse: separate;
+}
+.clusterRow {
+  line-height: 15px;
+}
+#optionsPane {
+  width: 370px;
+  display: inline-block;
+}
+#exportPane {
+  width: 450px;
+  display: inline-block;
+}
+#exportPane label {
+  display: inline-block;
+}
+#exportCheckboxes {
+  margin-bottom: 4px;
+}
+.exportSpeciesCheckbox {
+  margin: 3px 3px 3px 0px;
+}
+.style-box .jscolor {
+  width: 51px;
+  padding: 1px;
+  font-size: 0.8em;
+}
+.style-box .opt-spinner {
+  width: 29px;
+}
+.style-box .param-spinner {
+  width: 21px;
+}

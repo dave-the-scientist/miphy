@@ -1,0 +1,25 @@
+
+.style-box .param-spinner {
+  width: 21px;
+}
+
+#detailsPane {
+  width: 826px;
+}
+#parametersPane {
+  width: 300px;
+}
+#upload-files {
+  margin-top: 15px;
+}
+#upload-files input {
+  margin-bottom: 10px;
+}
+#uploadButton {
+  width: 100%;
+  text-align: center;
+}
+
+#viewPane {
+  width: 240px;
+}
