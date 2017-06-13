@@ -77,8 +77,8 @@ class Daemon(object):
         self.signals = [] ## TESTING. i think.
         self.age=0 # TESTING
         # # #  Server setup:
-        module_root = os.path.abspath(os.path.dirname(sys.argv[0]))
-        resources_dir = os.path.join(module_root, 'resources')
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        resources_dir = os.path.join(module_dir, 'resources')
         template_dir = os.path.join(resources_dir, 'templates')
         static_dir = os.path.join(resources_dir, 'static')
         self.server = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
