@@ -109,7 +109,10 @@ class Daemon(object):
                     filename += '.svg'
                 with open(filename, 'wb') as f:
                     f.write(svgData)
-            return 'Svg file saved to %s' % (filename)
+                ret_msg = 'Svg file saved to %s' % (filename)
+            else:
+                ret_msg = 'File not saved.'
+            return ret_msg
         @self.server.route(daemonURL('/save-csv-locally'), methods=['POST'])
         def save_csv():
             root = tk_root()
