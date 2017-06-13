@@ -2,7 +2,7 @@ import os, sys, threading
 from collections import deque
 from random import randint
 from flask import Flask, request, render_template, json
-from scripts.miphy_instance import MiphyInstance, MiphyValidationError
+from miphy_resources.miphy_instance import MiphyInstance, MiphyValidationError
 
 if sys.version_info >= (3,0): # Python 3.x imports
     from io import StringIO

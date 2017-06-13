@@ -1,7 +1,7 @@
 import time
 import xml.etree.ElementTree as ET
-from scripts.convert import NewickToPhyloxml
-from scripts.clusterer import Clusterer
+from miphy_resources.convert import NewickToPhyloxml
+from miphy_resources.clusterer import Clusterer
 
 
 class MiphyInstance(object):

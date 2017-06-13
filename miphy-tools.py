@@ -1,6 +1,6 @@
 import os
 from optparse import OptionParser
-from scripts import newick_to_coords
+from miphy_resources import newick_to_coords
 from miphy import __author__, __version__
 # for 'info' option, should also indicate how many species there are. It can then bin all seqs by first x letters, then combine all of the small groups into one 'misc' category.
 

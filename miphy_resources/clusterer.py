@@ -1,9 +1,9 @@
-"""MIPhy class object that performs the clustering and stability analysis.
+"""MIPhy class that performs the clustering and stability analysis.
 """
 
 import os
 import numpy as np
-from scripts import newick_to_coords
+from miphy_resources import newick_to_coords
 
 
 class Clusterer(object):
@@ -23,7 +23,7 @@ class Clusterer(object):
         if verbose: print('Finished setting up the clusterer.')
         #self.validate_data()
 
-    # # # # #  Main methods:
+    # # # # #  Main method:
     def cluster(self, i_coefficient=0.5, d_coefficient=1.0, l_coefficient=1.0, spread_coefficient=1.0):
         self.nodes = {}
         params = {'i_coef':float(i_coefficient), 'd_coef':float(d_coefficient),
@@ -41,10 +41,8 @@ class Clusterer(object):
             for name in self.nodes[clstr_root].clusters[0]:
                 n = self.nodes[clstr_root]
                 scores[name] = (self.nodes[clstr_root].total_score, [n.i, n.d, n.l+n.m, n.spread])
-
         clusters.sort(key=lambda c: -scores[c[0]][0])
         return clusters, scores
-
 
     # # # # #  Option parsing and checking methods:
     def parse_gene_tree(self, gene_tree_data, coords_file):
@@ -86,7 +84,6 @@ class Clusterer(object):
                 self.report_error('A sequence named "%s" was not mapped to a species in the information file' % (gene))
             elif self.species_map[gene] not in self.species:
                 self.report_error('Species "%s" was not present in the given species tree from the information file' % (spc))
-
 
     # # # # #  Misc methods:
     def report_error(self, msg):
@@ -230,7 +227,7 @@ class _PhyloST_node(object):
         self.rca = species
         self.species_comp = set((species,))
         self.leaves = set((node,))
-        self._separate_event_score = 0.0 # Not currently used, potentially useful in the future.
+        self._separate_event_score = 0.0 # Not currently used, potentially useful in the future for parameter exploration.
         self._combined_event_score = 0.0
         self._separate_total_score = 0.0
         self._combined_total_score = 0.0

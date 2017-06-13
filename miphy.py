@@ -10,8 +10,8 @@ the environment.
 """
 import os, webbrowser, socket
 from optparse import OptionParser, OptionGroup
-from scripts import miphy_daemon
-from scripts.miphy_instance import MiphyInstance
+from miphy_resources import miphy_daemon
+from miphy_resources.miphy_instance import MiphyInstance
 
 
 __author__ = 'David Curran'
@@ -22,11 +22,11 @@ def setup_parser():
     usage_str = "python %prog GENE_TREE.nwk INFO_FILE.txt [OPTIONS]\n\nPerform clustering on a gene tree, and score each cluster in terms of phylogenetic stability."
     version_str = "%%prog %s" % __version__
     parser = OptionParser(usage=usage_str, version=version_str)
-    parser.set_defaults(dup_weight=1.0, ils_weight=0.5, loss_weight=1.0, spread_weight=1.0,
+    parser.set_defaults(dup_weight=1.0, inc_weight=0.5, loss_weight=1.0, spread_weight=1.0,
         use_coords=True, coords_file='', results_file='', only_species='',
         manual_browser=False, server_port=0, test=False, verbose=False)
-    parser.add_option('-i', '--ILS_weight', dest='ils_weight', type='float',
-        help='Cost of an incomplete lineage sorting event [default: %default]')
+    parser.add_option('-i', '--inc_weight', dest='inc_weight', type='float',
+        help='Cost of an incongruence event [default: %default]')
     parser.add_option('-d', '--duplication_weight', dest='dup_weight', type='float',
         help='Cost of a duplication event [default: %default]')
     parser.add_option('-l', '--loss_weight', dest='loss_weight', type='float',
@@ -36,7 +36,7 @@ def setup_parser():
     parser.add_option('-n', '--no_coords', dest='use_coords', action='store_false',
         help="Don't calculate the full pairwise distance matrix to generate coordinate points. This will cause any SPREAD_WEIGHTs to be ignored")
     parser.add_option('-f', '--coords_file', dest='coords_file', type='string',
-        help="Load this file instead of calculating the full pairwise distance matrix and coordinate points. If COORDS_FILE doesn't exist, the coords will be calculated and stored here. IMPORTANT: this must be recalculated if any sequences are added or removed to the gene tree")
+        help="Load the coordinate points if COORDS_FILE exists, or calculate and save them if it does not. This prevents recalculation of the full pairwise distance matrix, which can be time-consuming for large trees. IMPORTANT: this must be recalculated if any sequences are added or removed to the gene tree")
     parser.add_option('-r', '--results_file', dest='results_file', type='string',
         help="Save the clustering patterns and instability scores to this file, instead of visualizing the results in a web browser. Use the --only_species option to filter the results")
     parser.add_option('-o', '--only_species', dest='only_species', type='string',
@@ -61,7 +61,7 @@ def validate_args(parser, args):
     return gene_tree_file, info_file
 def validate_options(parser, opts):
     # Validate weights.
-    d_weight, i_weight = opts.dup_weight, opts.ils_weight
+    d_weight, i_weight = opts.dup_weight, opts.inc_weight
     l_weight, spread_weight = opts.loss_weight, opts.spread_weight
     if d_weight<0 or i_weight<0 or l_weight<0 or spread_weight<0:
         parser.error('all weight values must be non-negative.')
@@ -185,11 +185,8 @@ if __name__ == '__main__':
     if options['results_file']: # Don't need to start the MIPhy server.
         mi = MiphyInstance(gene_tree_data, info_data, allowed_wait={}, use_coords=options['use_coords'], coords_file=options['coords_file'], verbose=opts.verbose)
         mi.processed(options['params'])
-        data = generate_csv_OLD(options['only_species'], mi.species, mi.species_mapping, mi.scores[options['params']])
-
-        print 'testing equal?', data == generate_csv(options['only_species'], mi, options['params'])
-        print generate_csv(options['only_species'], mi, options['params'])
-
+        #data = generate_csv_OLD(options['only_species'], mi.species, mi.species_mapping, mi.scores[options['params']])
+        data = generate_csv(options['only_species'], mi, options['params'])
         with open(options['results_file'], 'wb') as f:
             f.write(data)
         print('\nInstability scores saved to %s' % options['results_file'])
