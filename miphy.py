@@ -15,7 +15,7 @@ from miphy_resources.miphy_instance import MiphyInstance
 
 
 __author__ = 'David Curran'
-__version__ = '0.8.0'
+__version__ = '0.8.1'
 
 
 def setup_parser():
@@ -96,22 +96,8 @@ def validate_options(parser, opts):
         'coords_file':coords_file, 'use_coords':use_coords,
         'results_file':results_file, 'only_species':only_species}
 
-def generate_csv_OLD(only_species, species, species_mapping, scores):
-    # scores = {'gene_name': (inst_score, [num_ILS, num_dup, num_loss, rel_spread]), ...}
-    if only_species - set(species):
-        print('\nError: these species specified from --only_species were not found in the information file: %s' % (', '.join(only_species - set(species))))
-        exit()
-    to_keep = []
-    for name, scrs in scores.items():
-        spc = species_mapping[name]
-        if only_species and spc not in only_species:
-            continue
-        to_keep.append((name, spc, scrs[0]))
-    to_keep.sort(key=lambda d: d[0])
-    to_keep.sort(key=lambda d: d[2])
-    buff = ['%s,%s,%.2f'%d for d in to_keep]
-    return '\n'.join(buff)
 def generate_csv(only_species, mi, params):
+    # This should return the same data as the #exportButton.click() call inside setupExportPane() in results.js
     unknown_species = only_species - set(mi.species)
     if unknown_species:
         print('\nError: these species specified by --only_species were not found in the information file: %s' % (', '.join(unknown_species)))
@@ -151,21 +137,13 @@ def test_miphy():
 
 # Apparently the branch lengths can sometimes be negative in trees.
 # - Add a check for this on the upload page.
-
-# Flag to save cluster pattern to file.
 # Rearrange help output into option groups.
-# Running on the 4cp_ugt trees online, every cluster seems to have a negative relative spread.
-    # How can the average be so high when none have high spread?
-    # I think I modified some of the spread code. The local version is totally fucked right now.
 # When run, check number of sequences, print message warning about long run time if it's large.
     # Also that the web browser is unlikely to ever load. If that is true.
 # Create a test module. Begun with a flag, tests setup and imports, tests calculations, tests server, tests visualization.
 # Add function to miphy-tools that sanitizes sequence names in nwk file; removes ' marks that FigTree puts there if there is a / in the seq name.
-# Make damned sure tree-parsing software is correct and robust.
-    # Crashes badly on non-binary trees.
 # Make sure this is robust. If it can't handle non-binary trees, ensure the user's trees are binary.
-# Local server using IPv4, not IPv6. This a problem? 47044
-# Perhaps use some graphical front-end to allow a user to hand-draw their own species tree.
+  # Crashes badly on non-binary trees.
 # Clean up newick_to_coords file. Rename, move code into classes, ensure it is useful standalone.
 # FOR V2:
 # - Add option to specify singleton spread?
@@ -185,7 +163,6 @@ if __name__ == '__main__':
     if options['results_file']: # Don't need to start the MIPhy server.
         mi = MiphyInstance(gene_tree_data, info_data, allowed_wait={}, use_coords=options['use_coords'], coords_file=options['coords_file'], verbose=opts.verbose)
         mi.processed(options['params'])
-        #data = generate_csv_OLD(options['only_species'], mi.species, mi.species_mapping, mi.scores[options['params']])
         data = generate_csv(options['only_species'], mi, options['params'])
         with open(options['results_file'], 'wb') as f:
             f.write(data)

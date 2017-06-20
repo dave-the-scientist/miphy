@@ -24,6 +24,7 @@ else: # Python 2.x imports
 # Towards meta-analysis of weight combinations: of the ways to produce a clustering pattern, that with the lowest total score should be kept.
 #   Analyzing the different combs might yield a prediction for the high-low boundary. There may be a point in the list where the same x sequences are always (or most commonly) above it no matter the weights. I expect the unstable genes to move around in their rankings, but probably not the stable ones so much. Could also yield reasonable parameter values.
 
+
 def daemonURL(url):
     return '/daemon' + url
 

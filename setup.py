@@ -1,9 +1,17 @@
-from setuptools import setup
-# VERY IMPORTANT that the files in PROGRAM_NAME.egg-info/ (created while running python setup.py sdist) have read permissions for any user. Otherwise running 'pip' to do anything on a user's system will break.
+# VERY IMPORTANT that the files in PROGRAM_NAME.egg-info/ (created while running
+# python setup.py sdist) have read permissions for any user. Otherwise running
+# 'pip' to do anything on a user's system will break.
 
+from miphy import __version__ as mi_v
+from miphy_resources import __version__ as mir_v
+if mi_v != mir_v:
+    print('\nError: miphy and miphy_resources have different version numbers.\n')
+    exit()
+
+from setuptools import setup
 setup(
     name="MIPhy",
-    version="0.8.0",
+    version=mi_v,
 
     author="Dave Curran",
     author_email="dmcurran@ucalgary.ca",
@@ -25,3 +33,14 @@ setup(
         "flask", "numpy"
     ],
 )
+
+import os
+egg_dir = 'MIPhy.egg-info'
+if not os.path.isdir(egg_dir):
+    print('\nAttempting to check file permissions in %s/, but the folder was not found.' % egg_dir)
+else:
+    for fname in os.listdir(egg_dir):
+        fpath = os.path.join(egg_dir, fname)
+        prmsn = oct(os.stat(fpath).st_mode & 0777)
+        if int(prmsn[-1]) < 4:
+            print('\nWarning: file %s with permission %s does not allow global reading; change its permissions (666 should work) and re-run this setup.py to avoid installation issues for users.' % (fpath, prmsn))
