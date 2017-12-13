@@ -135,6 +135,7 @@ def test_miphy():
     # non-binary tree -
     print('in test. will be implemented soon.')
 
+# For the local version, if you upload and run miphy, but neer click view, then closet he browser, it hangs.
 # Apparently the branch lengths can sometimes be negative in trees.
 # - Add a check for this on the upload page.
 # Rearrange help output into option groups.

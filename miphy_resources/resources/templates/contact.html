@@ -34,18 +34,27 @@
     <div id="pageDiv">
 
       <div id="header" class="dark-bg">
-        <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
-        <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
-        <ul id="navBar"> <!--Need ids?-->
+        <div id="headerContainer">
+          <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
+          <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div id="navBar">
+        <ul id="navMenu">
           <li><a id="navHome" href="/" target="_blank">Home</a></li>
           <li><a id="navDocs" href="/docs" target="_blank">Documentation</a></li>
           <li><a id="navContact" href="/contact" target="_blank">Contact us</a></li>
         </ul>
-        <div class="clearfix"></div>
       </div>
 
       <div id="mainBody">
-        <p>Content goes here.</p>
+        <div id="contactPane" class="style-box">
+          <h2>Contact us</h2>
+          <p>This software was built by me (Dave Curran) during my PhD as part of the <a href="https://wasmuthlab.wordpress.com/">Wasmuth lab</a> at the University of Calgary.</p>
+          <p>If you found the software useful, I'd love to hear about it! Feel free to contact us at SOME EMAIL.</p>
+          <p>If you encounter a problem with MIPhy, or come up with an idea that could improve its usefulness, please report it at my <a href="https://github.com/dave-the-scientist/miphy/issues">GitHub issues page</a>, and I'll try to work with you to resolve it.</p>
+        </div>
 
         <div class="clearfix"></div>
       </div>

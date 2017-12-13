@@ -232,9 +232,10 @@ function displayTree() {
       header_width += parseFloat($(eID).css('padding-left')) + parseFloat($(eID).css('padding-right')) +
           parseFloat($(eID).css('border-top-width'))*2 + parseFloat($(eID).css('margin-left'));
     }
-    $('#header').css('width', header_width+'px');
+    //$('#header').css('width', header_width+'px');
+
     //$('#header').css('width', '100%');
-    //$('#navBar').css('width', '100%');
+    //$('#navMenu').css('width', '100%');
   }, 0);
 }
 function addSpeciesBarToTree() {

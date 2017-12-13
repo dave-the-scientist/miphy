@@ -34,24 +34,28 @@
     <div id="pageDiv">
 
       <div id="header" class="dark-bg">
-        <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
-        <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
-        <ul id="navBar"> <!--Need ids?-->
+        <div id="headerContainer">
+          <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
+          <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div id="navBar">
+        <ul id="navMenu">
           <li><a id="navHome" href="/" target="_blank">Home</a></li>
           <li><a id="navDocs" href="/docs" target="_blank">Documentation</a></li>
           <li><a id="navContact" href="/contact" target="_blank">Contact us</a></li>
         </ul>
-        <div class="clearfix"></div>
       </div>
 
       <div id="mainBody">
+        <!--<img id="bgTreeImg" src="static/images/miphy_bg_tree.png" />-->
         <div id="detailsPane" class="style-box">
           <h2>Welcome</h2>
           <p>Welcome to MIPhy, a tool to quantify phylogenetic instability in
           trees of multi-species gene families. Check out the Documentation tab
           above for more details and for a tutorial on how to use MIPhy. It
           can also be downloaded as a stand-alone program from <a href="https://github.com/dave-the-scientist/miphy">GitHub</a>.</p>
-          <p>Note: the parameter weights are set once you press the upload button.</p>
         </div>
         <div class="clearfix"></div>
 
@@ -81,15 +85,15 @@
             <input id="upload-info-input" name="info-file" type="file">
           </form>
           <button id="uploadButton" type="button"><b>Upload files and run MIPhy</b></button>
-        </div>
 
-        <div id="viewPane" class="style-box">
           <h2>Upload summary</h2>
           <div id="summaryText">
             <p>No files uploaded.</p>
+            <p>Note: the parameter weights are set once you press the upload button.</p>
           </div>
           <button id="viewResultsButton">View results</button>
         </div>
+        <img id="bgTreeImg" src="static/images/miphy_bg_tree.png" />
         <div class="clearfix"></div>
       </div>
 

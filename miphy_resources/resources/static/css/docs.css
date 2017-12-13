@@ -1,5 +1,10 @@
 /* CSS for the MIPhy docs.html page.*/
 
-#aboutPane, #resultsTutorialPane, #algorithmPane, #faqsPane {
+#aboutPane, #algorithmPane, #resultsTutorialPane, #faqsPane {
+  /*
   width: 850px;
+  width: calc(100vw - 400px);
+  */
+  width: calc(70vw);
+  min-width: 450px;
 }

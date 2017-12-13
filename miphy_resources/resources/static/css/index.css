@@ -3,11 +3,18 @@
   width: 21px;
 }
 
+#bgTreeImg {
+  z-index: -1;
+  width: 515px;
+  height: 515px;
+  margin: 10px 10px 10px 0px;
+}
+
 #detailsPane {
-  width: 826px;
+  width: 836px;
 }
 #parametersPane {
-  width: 300px;
+  width: 310px;
 }
 #upload-files {
   margin-top: 15px;

@@ -39,6 +39,7 @@ h2 {
 }
 h3 {
   font-size: 1.0em;
+  text-decoration: underline;
   margin: 16px auto 0px auto;
 }
 p, li, table, label {
@@ -85,15 +86,45 @@ table label, table select {
   padding: 0px;
   min-height: 100%;
   position: relative;
+  text-align: center; /* To center mainBody */
 }
-#header {
-  padding: 10px 0px 0px 0px;
-  width: 100%; /*850px*/
-  margin: 0px 0px 0px 0px;
-  box-shadow: 1px 1px 2px #555555;
+#mainBody {
+  /*overflow-y: auto;*/
+  margin: 0px auto 0px auto;
+  padding: 0px 0px 70px 5px;
+  display: inline-block;
+  text-align: left; /* To return to default. */
+  width: -moz-min-content;
+  width: -webkit-min-content;
+  width: min-content;
+}
+#footerDiv {
+  position: absolute;
+  width: 100%;
+  height: 50px;
+  padding: 0px;
+  bottom: 5px;
+  z-index: -1;
+}
+#footerDiv p {
+  text-align: center;
+  margin: 16px auto 16px auto;
+  color: white;
+}
+
+/* ======  The header and navigation bar  ====== */
+#header, #navBar {
+  width: 100%;
+  min-width: 675px;
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+}
+#headerContainer {
+  display: inline-block;
+  margin: 10px auto 10px auto;
 }
 #headerImg {
-  margin-left: 50px;
   height: 75px;
   display: inline-block;
   vertical-align: middle;
@@ -103,56 +134,51 @@ table label, table select {
   vertical-align: middle;
   display: inline;
 }
-#mainBody {
-  /*overflow-y: auto;*/
-  padding-bottom: 70px;
-  padding-left: 5px;
-}
-#footerDiv {
-  width: 100%;
-  height: 50px;
-  padding: 0px;
-  position: absolute;
-  bottom: 5px;
-  z-index: -1;
-}
-#footerDiv p {
-  text-align: center;
-  margin: 16px auto 16px auto;
-  color: white;
-}
-/* ======  The navigation header  ====== */
 #navBar {
-  list-style: none;
-  padding: 0px;
-  margin: 10px 0px 0px 0px;
-  float: left;
-  width: 100%;
   background-color: black;
   border-top: 2px solid black;
   border-bottom: 2px solid black;
+  box-shadow: 1px 1px 2px #555555;
 }
-#navBar li { float:left; }
-#navBar li:first-child { margin-left:15px; }
-#navBar li a { font-size:16px; color:#fff; text-decoration:none; padding:0px 15px; }
-#navBar li a:hover{ background-color: #FFFFFF; color: black; }
+#navMenu {
+  margin: 3px 100px 3px 0px;
+  padding: 0px;
+  display: inline-block;
+  vertical-align: middle;
+}
+#navMenu li {
+  float:left;
+  margin: 0px 30px;
+}
+#navMenu li a {
+  font-size:16px;
+  color:#fff;
+  text-decoration:none;
+  padding:0px 15px;
+}
+#navMenu li a:hover{
+  background-color: #FFFFFF;
+  color: black;
+}
+
 /* ======  The main style of box  ====== */
 .style-box {
   background-color: white;
   border-width: 4px; border-style: solid;
   box-shadow: 1px 1px 2px #555555;
-  padding: 8px 8px 8px 8px;
+  padding: 0px 8px 8px 8px;
   margin-top: 10px;
   margin-right: 15px;
   margin-bottom: 5px;
   float: left;
 }
 .style-box h2 {
+  margin-top: 10px;
   margin-bottom: 2px;
 }
 .style-box > *:not(svg):not(p):not(h2):not(h3) {
   margin-top: 6px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 .style-box table {
   font-size: 0.9em;

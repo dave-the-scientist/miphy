@@ -53,16 +53,22 @@
 
   <body class="light-bg">
     <div id="pageDiv">
+
       <div id="header" class="dark-bg">
-        <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
-        <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
-        <ul id="navBar"> <!--Need ids?-->
+        <div id="headerContainer">
+          <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
+          <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div id="navBar">
+        <ul id="navMenu">
           <li><a id="navHome" href="/" target="_blank">Home</a></li>
           <li><a id="navDocs" href="/docs" target="_blank">Documentation</a></li>
           <li><a id="navContact" href="/contact" target="_blank">Contact us</a></li>
         </ul>
-        <div class="clearfix"></div>
       </div>
+
       <div id="mainBody">
         <div id="leftPane">
           <div id="summaryPane" class="style-box">
@@ -93,7 +99,7 @@
               </tr>
             </tbody></table>
             <button id="paramReclusterButton">Recluster</button>
-            <button id="paramResetButton">Reset parameters</button>
+            <button id="paramResetButton">Reset weights</button>
             <button id="paramPreviousButton">Previous</button>
           </div>
           <div id="clustersPane" class="style-box">
@@ -116,10 +122,10 @@
               <label id="searchHitsText" class=""></label>
               <button id="searchButton" class="cont-element cont-pair-left"><span class="ui-icon ui-icon-search"></span></button><!-- Needed to remove whitespace between this and the button. Because the parent uses a display:inline.
               --><input id="searchInput" name="searchInput" class="cont-element cont-pair-right search-input" size="14" placeholder="Search sequences" onkeyup="this.setAttribute('value', this.value);" value="" />
-              <button id="clearSearchButton" type="reset" class="search-clear">X</button>
+              <button id="clearSearchButton" type="reset" class="search-clear"><span class="ui-icon ui-icon-close"></span></button> <!--<span class="ui-icon ui-icon-close"></span>-->
               <div style="clear:both;"></div>
-              <button id="zoomOutButton" class="cont-element cont-pair-left">-</button><!--
-              --><button id="zoomInButton" class="cont-element cont-pair-right">+</button>
+              <button id="zoomOutButton" class="cont-element cont-pair-left"><span class="ui-icon ui-icon-minus"></button><!--
+              --><button id="zoomInButton" class="cont-element cont-pair-right"><span class="ui-icon ui-icon-plus"></button>
               <button id="zoomResetButton" class="cont-element">Reset</button>
             </form>
 
@@ -130,7 +136,6 @@
             <div id="svgCanvas"></div>
           </div>
 
-          <div id="optExportPane">
           <div id="optionsPane" class="style-box">
             <h2>Display options</h2>
             <table id="optionsTable"><tbody>
@@ -182,7 +187,7 @@
             <button id="exportButton">Save scores</button>
             <label><input id="exportSelectAll" type="checkbox" checked /><b>Select all</b></label>
           </div>
-          </div>
+          <div class="clearfix"></div>
 
           <div id="detailsPane" class="style-box">
             <h2>Usage details</h2>
@@ -197,7 +202,7 @@
             <h3>Features</h3>
             <p>Click on any sequence name, entry in the <b>Clusters</b> list, or cluster in the tree to view more information about it.</p>
             <p>The <b>Clusters</b> list can be sorted by Instability score or cluster size by clicking on the appropriate header.</p>
-            <p>The tree can be panned using the mouse, or zoomed in by scrolling or by the <b>-</b> and <b>+</b> buttons in the top-right corner of the tree. The <b>Reset</b> button returns both to their defaults. Sequence names can be searchged using the input field.</p>
+            <p>The tree can be panned using the mouse, or zoomed in by scrolling or by the <b>-</b> and <b>+</b> buttons in the top-right corner of the tree. The <b>Reset</b> button returns both to their defaults. Sequence names can be searched using the input field.</p>
             <p>The <b>Previous</b> button allows two paramater configurations to be easily compared.</p>
             <p>To analyze a new file with the local version of MIPhy without closing the current page, use the button below to end your session:</p>
             <button id="quitButton">End current session</button>

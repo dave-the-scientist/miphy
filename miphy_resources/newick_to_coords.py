@@ -162,7 +162,7 @@ def calculate_coords(M, max_dimensions=0):
     of .eig. The first columns are the least significant dimensions."""
     zero = 1e-5 # floating point 0 check.
     vals, vecs = np.linalg.eigh(M)
-    total_val = sum(v for v in vals if v > zero)
+    #total_val = sum(v for v in vals if v > zero)
     if max_dimensions: tokeep = max(len(vals) - max_dimensions, 0)
     else: tokeep = 0
     vals, vecs = vals[tokeep:], vecs[:,range(tokeep, len(vals))]

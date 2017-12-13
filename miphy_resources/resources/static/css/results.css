@@ -22,6 +22,7 @@ tbody tr.clusterRow.hover,
 #searchHitsText {
   margin: 0px;
   vertical-align: middle;
+  vertical-align: -webkit-baseline-middle; /*Needed for chrome*/
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
 }
@@ -34,15 +35,20 @@ tbody tr.clusterRow.hover,
   border: 0px solid #000000;
   padding: 0px;
 }
+
 .cont-element {
   vertical-align: middle;
-  margin: 2.5px 0px;
+  vertical-align: -webkit-baseline-middle; /*Needed for chrome*/
+  margin: 3px 0px;
   padding: 0px 5px;
   height: 25px;
+  min-width: 25px;
   border: 1px solid #000000;
   background-color: #ffffff;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
+  text-align: center;
+  line-height: normal;
 }
 
 .cont-pair-left {
@@ -60,29 +66,30 @@ tbody tr.clusterRow.hover,
 #searchInput {
   height: 23px; /*Needs to be 2*border-width smaller than the button.*/
   background-color: #ffffff;
+  text-align: left;
 }
 .search-clear {
-  border:1px solid transparent;
-  outline: 0;
   width: 20px;
-	height: 19px;
-	background-color: #FF9800;
+	height: 21px;
   position: absolute;
-	z-index: 1;
-	right: 3px;
-  top: 3px;
+  right: 3px;
+  top: 5px;
+  margin: 0px;
 	padding: 0px;
-	border-radius: 50%;
+  z-index: 1;
+  display: inline-block;
+  border:1px solid transparent;
+  border-radius: 50%;
+  outline: 0;
+  background-color: #FF9800;
 	text-align: center;
-	color: white;
 	font-weight: normal;
 	font-size: 12px;
+  color: white;
 	cursor: pointer;
-  /*box-shadow: 0 0 2px #E50F0F;
+}
+.search-clear > * {
   margin: auto;
-  display: inline;
-  vertical-align: middle;
-  */
 }
 .search-input[value=""] ~ .search-clear {
   display: none;
@@ -90,6 +97,7 @@ tbody tr.clusterRow.hover,
 
 #species-colour-select {
   max-width: 110px;
+  padding-left: 2px;
 }
 #treeContainer {
   position: relative;
@@ -116,19 +124,21 @@ tbody tr.clusterRow.hover,
   /*Should be 40px larger than parametersPane width.*/
   margin-left: 300px;
 }
-#paramReclusterButton {
-  width: 100%;
+#paramReclusterButton, #paramResetButton, #paramPreviousButton, #redrawButton, #saveButton {
+  margin-left: 5px;
+  margin-right: 5px;
   text-align: center;
+}
+#paramReclusterButton {
+  width: calc(100% - 10px);
 }
 #paramResetButton {
   float:left;
-  text-align: center;
-  width: 55%;
+  width: 50%;
 }
 #paramPreviousButton {
   float: right;
-  text-align: center;
-  width: 37%;
+  width: 40%;
 }
 #clustersTable {
   border-collapse: separate;
@@ -137,8 +147,16 @@ tbody tr.clusterRow.hover,
   line-height: 15px;
 }
 #optionsPane {
-  width: 370px;
+  width: 380px;
   display: inline-block;
+}
+#redrawButton {
+  float: left;
+  width: 55%;
+}
+#saveButton {
+  float: right;
+  width: 35%;
 }
 #exportPane {
   width: 450px;
@@ -163,4 +181,7 @@ tbody tr.clusterRow.hover,
 }
 .style-box .param-spinner {
   width: 21px;
+}
+#detailsPane {
+  width: 869px;
 }
