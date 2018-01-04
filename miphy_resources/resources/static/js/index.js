@@ -114,7 +114,7 @@ function processFiles(param_data) {
       var num_clusters = data.numclstrs;
       results_processed = true;
       $("#summaryText").html(
-        '<p>Upload successful.<br /><b>'+num_sequences+'</b> sequences,<br />from <b>'+
+        '<p>Upload and analysis successful.<br /><b>'+num_sequences+'</b> sequences,<br />from <b>'+
         num_species+'</b> species,<br />in <b>'+num_clusters+'</b> clusters.</p>'
       );
     },

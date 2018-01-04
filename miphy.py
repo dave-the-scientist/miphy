@@ -36,7 +36,7 @@ def setup_parser():
     parser.add_option('-n', '--no_coords', dest='use_coords', action='store_false',
         help="Don't calculate the full pairwise distance matrix to generate coordinate points. This will cause any SPREAD_WEIGHTs to be ignored")
     parser.add_option('-f', '--coords_file', dest='coords_file', type='string',
-        help="Load the coordinate points if COORDS_FILE exists, or calculate and save them if it does not. This prevents recalculation of the full pairwise distance matrix, which can be time-consuming for large trees. IMPORTANT: this must be recalculated if any sequences are added or removed to the gene tree")
+        help="Load the coordinate points if COORDS_FILE exists, or calculate and save them if it does not. This prevents recalculation of the full pairwise distance matrix, which can be time-consuming for large trees. IMPORTANT: this must be recalculated if any sequences are added to or removed from the gene tree")
     parser.add_option('-r', '--results_file', dest='results_file', type='string',
         help="Save the clustering patterns and instability scores to this file, instead of visualizing the results in a web browser. Use the --only_species option to filter the results")
     parser.add_option('-o', '--only_species', dest='only_species', type='string',

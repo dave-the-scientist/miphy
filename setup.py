@@ -2,6 +2,8 @@
 # python setup.py sdist) have read permissions for any user. Otherwise running
 # 'pip' to do anything on a user's system will break.
 
+# When testing is implemented, update MANIFEST.in to specifically include only what we're looking for
+
 from miphy import __version__ as mi_v
 from miphy_resources import __version__ as mir_v
 if mi_v != mir_v:

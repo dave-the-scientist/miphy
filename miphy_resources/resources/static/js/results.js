@@ -18,26 +18,23 @@
   -- Seems to happen frequently if I run it with the WiFi turned off.
 
    * Technical to-do *
+-- The more times a tree is re-drawn (either by changing weights or by changing colours), the more extreme the action of the +/- zoom buttons. No idea why, but fix.
 -- If there are many species, the legend is tall, and the tree should hug the top. If their names are long, it is wide, and the tree should hug the left side of the screen.
   -- The program should make this decision based on the measured lengths (or maybe a drawing option).
 -- Mouseover on the search highlight shape should be the same as mouseover on the cluster (ideally), or perhaps just that sequence.
 -- Change order of numbered dots in cluster tooltop to match order of species tree legend.
 -- Change order of event counts in cluster tooltip to: D, L, I.
+-- If you have a sequence highlighted from the search, and redraw from the "display options", the search highlight disappears. You have to click the magnifying glass again to show up.
 -- Add more colours to the list.
 -- If the species names are long, the summary box has issues.
 -- If you try to reset params or hit previous when the instance is closed, the values still change before the alert.
 -- Add a checkbox by the zoom controls to disable scroll zoom.
   -- DO THIS. Could also completely remove that, instead set to right click+mouseup or down.
   -- Very sensitive scrolling on a mac laptop, but not on mine.
--- If your browser window is very wide, Display Options and Export Data boxes move up to the right of the tree.
-  -- This is fine, but maybe want the header to extend to cover both.
 -- If the species names have bad characters (like a space or !), crashes with a bad error. No need to fix, but make the error comprehensible.
 -- Large data sets take a few seconds to visualize, so default 'results' page should have a message reading 'Calculating...', or similar.
 -- Clean up displaySummaryStats (iterates too many times right now).
 -- Change Instability to Imbalance?
--- Occasionally I'll run it, the web page will open with just the tree skeleton; no clusters etc. Figure out why.
-  -- In console I get TypeError: $(...)[0].jscolor is undefined. probably being called before page is loaded?
-  -- Hasn't happened in quite a while. Think I fixed it by reordering the startServer code.
 -- Make sure any images loaded are alraedy at their correct width/height. saves time resizing them.
 -- When saving svg and opening in inkscape, some weirdness.
   -- The legend is tied to the document, can't be moved. Resizing the document moves it around inexplicably.

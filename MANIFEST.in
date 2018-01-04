@@ -3,7 +3,12 @@ include miphy_resources/resources/static/css/*
 include miphy_resources/resources/static/js/*
 include miphy_resources/resources/static/images/favicon.ico
 include miphy_resources/resources/static/images/miphy_icon_bw.png
+include miphy_resources/resources/static/images/miphy_bg_tree.png
 include miphy_resources/resources/static/libs/*
 include miphy_resources/resources/static/libs/images/*
 include miphy_resources/resources/templates/*
 include miphy_resources/tests/*
+exclude miphy_resources/resources/static/css/monitor.css
+exclude miphy_resources/resources/static/js/monitor.js
+exclude miphy_resources/resources/templates/monitor.html
+exclude *.pyc
