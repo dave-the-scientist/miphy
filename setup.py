@@ -43,6 +43,6 @@ if not os.path.isdir(egg_dir):
 else:
     for fname in os.listdir(egg_dir):
         fpath = os.path.join(egg_dir, fname)
-        prmsn = oct(os.stat(fpath).st_mode & 0777)
+        prmsn = oct(os.stat(fpath).st_mode & 0o777)
         if int(prmsn[-1]) < 4:
             print('\nWarning: file %s with permission %s does not allow global reading; change its permissions (666 should work) and re-run this setup.py to avoid installation issues for users.' % (fpath, prmsn))

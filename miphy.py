@@ -15,7 +15,7 @@ from miphy_resources.miphy_instance import MiphyInstance
 
 
 __author__ = 'David Curran'
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 
 
 def setup_parser():

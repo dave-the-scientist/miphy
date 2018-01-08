@@ -16,15 +16,6 @@ else: # Python 2.x imports
     from Tkinter import Tk as tk_root
     from tkFileDialog import asksaveasfilename as saveAs
 
-
-# Add a graphic to the home page. Possibly of some random tree, possibly of a MIPhy tree.
-# Spread weight gets diluted out with more species, as you tend to have more events per cluster. Might want to set spread = 0.25 * num_species as default.
-  # Or maybe not. On vert cyps @(0.5,1.5,0.5), going from spread=1 to spread=2 introduces some singletons as expected, but also leads to the giant cluster. I feel like it shouldn't do that.
-# If you just save a tree using figtree instead of exporting it, it stores a bunch of info that looks like a seq name, but messes up subsequent analysis. Check for this.
-# Towards meta-analysis of weight combinations: of the ways to produce a clustering pattern, that with the lowest total score should be kept.
-#   Analyzing the different combs might yield a prediction for the high-low boundary. There may be a point in the list where the same x sequences are always (or most commonly) above it no matter the weights. I expect the unstable genes to move around in their rankings, but probably not the stable ones so much. Could also yield reasonable parameter values.
-
-
 def daemonURL(url):
     return '/daemon' + url
 
