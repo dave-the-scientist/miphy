@@ -173,6 +173,7 @@ tbody tr.clusterRow.hover,
 }
 .style-box .jscolor {
   width: 51px;
+  height: 16px;
   padding: 1px;
   font-size: 0.8em;
 }

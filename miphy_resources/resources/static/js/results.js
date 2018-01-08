@@ -388,13 +388,13 @@ function displayClustersList() {
   var spcStrs=[], spcCounts={}, numSpc=0, spc, spcColour, spcCountArr=[];
   var tbody = $("#clustersTable > tbody");
   var eventsStr, varStr, breakdownStr, spcCountStr, clustInd = 0;
-  $("#numClusters").text(cluster_list.length + " Clusters");
+  $("#numClusters").text(cluster_list.length + " MIGs");
   for (var i=0; i<cluster_list.length; ++i) {
     score = roundFloat(cluster_list[i][0], 2).toFixed(2);
     breakdown = cluster_list[i][1];
     clustLength = cluster_list[i][2];
     seqIDs = cluster_list[i][3];
-    clustID = 'cluster_'+clustInd;
+    clustID = 'group_'+clustInd;
     eventsStr = 'D=<b>'+breakdown[1]+'</b>, I=<b>'+breakdown[0]+'</b>, L=<b>'+breakdown[2]+'</b>';
     varStr = breakdown[3]!=null ? roundFloat(breakdown[3], 2).toFixed(2) : 'N/A';
     breakdownStr = '<b>Score:</b> '+score+'<br /><b>Events:</b> '+eventsStr+'<br /><b>Relative spread:</b> '+varStr;
@@ -632,7 +632,7 @@ function displaySummaryStats() {
 }
 function setupSummaryStatsPane() {
   $('#summaryStatsTable').empty();
-  $('#summaryStatsTable').append('<tr><td>Clusters:</td><td><b><span id="summaryNumClst"></span></b></td><td><b><span id="summaryAvgClstIns"></span></b></td></tr>');
+  $('#summaryStatsTable').append('<tr><td>MIGs:</td><td><b><span id="summaryNumClst"></span></b></td><td><b><span id="summaryAvgClstIns"></span></b></td></tr>');
   $('#summaryStatsTable').append('<tr><td>Sequences:</td><td><b>'+num_sequences+'</b></td><td><b><span id="summaryAvgIns"></span></b></td></tr>');
   for (var i=0; i<species.length; ++i) {
     spcCount = 0;
@@ -905,10 +905,6 @@ function closeInstance() {
 }
 // Called once the document has loaded.
 $(document).ready(function(){
-  $("#quitButton").click(function(){
-    closeInstance();
-  });
-
   setupPage();
 });
 

@@ -103,7 +103,7 @@
             <button id="paramPreviousButton">Previous</button>
           </div>
           <div id="clustersPane" class="style-box">
-            <h2 id="numClusters">Clusters</h2>
+            <h2 id="numClusters">MIGs</h2>
             <table id="clustersTable" class="sortable">
               <thead>
                 <tr><th class="sorttable_numeric">Instability</th>
@@ -154,13 +154,13 @@
               <tr>
                 <td><label for="bar-spinner">Bar chart height</label></td>
                 <td><input id="bar-spinner" class="opt-spinner" /></td>
-                <td><label for="highlight-spinner">Cluster padding</label></td>
+                <td><label for="highlight-spinner">MIG padding</label></td>
                 <td><input id="highlight-spinner" class="opt-spinner" /></td>
               </tr>
               <tr>
                 <td><select id="species-colour-select" onchange="speciesSelectChange(this.value)"></select></td>
                 <td><input id="species-colour" class="jscolor {closable:true,closeText:'Close'}" onchange="speciesColourChange(this.jscolor)" /></td>
-                <td><label for="cluster-colour">Cluster colour</label></td>
+                <td><label for="cluster-colour">MIG colour</label></td>
                 <td><input id="cluster-colour" class="jscolor {closable:true,closeText:'Close'}" /></td>
               </tr>
               <tr>
@@ -192,20 +192,18 @@
           <div id="detailsPane" class="style-box">
             <h2>Usage details</h2>
             <div class="clearfix"></div>
-            <p>This program analyzes the phylogenetic tree of a multi-species gene family, reconciles it with the given species tree, and the clusters it based on the most parsimonious reconciliation. More details can be found on the Documentation page.</p>
+            <p>This program analyzes the phylogenetic tree of a multi-species gene family, reconciles it with the given species tree, and then clusters it into minimum instability groups (MIGs) based on the most parsimonious reconciliation. More details can be found on the Documentation page.</p>
             <h3>Definitions</h3>
             <p><b>Duplication:</b> The cost associated with the duplication of some locus in an ancestral species.</p>
             <p><b>Loss:</b> The cost associated with the loss of some locus in an ancestral species.</p>
             <p><b>Incongruence:</b> The cost of an event that has caused the gene tree to differ from the species tree. The event itself is not specified, and may be due to a lineage- or gene-specific change in selective pressure, horizontal gene transfer, incomplete lineage sorting, or something else.</p>
-            <p><b>Spread:</b> The cost associated with including dissimilar sequences into one cluster. This is measured by the standard deviation of the cluster; to calculate this the tree is transformed into a set of points in Euclidean space that respect the pairwise phylogenetic distances.</p>
-            <p><b>Relative spread:</b> The spread of a cluster divided by the average spread of all clusters, modified to be centered around zero. A relative spread of -0.3 indicates that a cluster has a spread 30% smaller than the average for that tree, 1.0 indicates that it is double the average, and 0.0 is exactly equal to the average.</p>
+            <p><b>Spread:</b> The cost associated with including dissimilar sequences into a MIG. This is measured by the standard deviation of the MIG; to calculate this the tree is transformed into a set of points in Euclidean space that respect the pairwise phylogenetic distances.</p>
+            <p><b>Relative spread:</b> The spread of a MIG divided by the median spread of all MIGs, translated such that it is centered around zero. A relative spread of -0.3 indicates that the MIG has a spread 30% smaller than the median for that tree, 1.0 indicates that it is double the median, and 0.0 is exactly equal to the median.</p>
             <h3>Features</h3>
-            <p>Click on any sequence name, entry in the <b>Clusters</b> list, or cluster in the tree to view more information about it.</p>
-            <p>The <b>Clusters</b> list can be sorted by Instability score or cluster size by clicking on the appropriate header.</p>
+            <p>Click on any sequence name, entry in the <b>MIGs</b> list, or MIG in the tree to view more information about it.</p>
+            <p>The <b>MIGs</b> list can be sorted by Instability score or MIG size by clicking on the appropriate header.</p>
             <p>The tree can be panned using the mouse, or zoomed in by scrolling or by the <b>-</b> and <b>+</b> buttons in the top-right corner of the tree. The <b>Reset</b> button returns both to their defaults. Sequence names can be searched using the input field.</p>
             <p>The <b>Previous</b> button allows two paramater configurations to be easily compared.</p>
-            <p>To analyze a new file with the local version of MIPhy without closing the current page, use the button below to end your session:</p>
-            <button id="quitButton">End current session</button>
           </div>
         </div>
         <div class="clearfix"></div>

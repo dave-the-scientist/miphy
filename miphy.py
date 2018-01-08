@@ -19,7 +19,7 @@ __version__ = '0.9.1'
 
 
 def setup_parser():
-    usage_str = "python %prog GENE_TREE.nwk INFO_FILE.txt [OPTIONS]\n\nPerform clustering on a gene tree, and score each cluster in terms of phylogenetic stability."
+    usage_str = "python %prog GENE_TREE.nwk INFO_FILE.txt [OPTIONS]\n\nCluster a gene tree into minimum instability groups (MIGs), and quantify the phylogenetic stability of each."
     version_str = "%%prog %s" % __version__
     parser = OptionParser(usage=usage_str, version=version_str)
     parser.set_defaults(dup_weight=1.0, inc_weight=0.5, loss_weight=1.0, spread_weight=1.0,
@@ -32,7 +32,7 @@ def setup_parser():
     parser.add_option('-l', '--loss_weight', dest='loss_weight', type='float',
         help='Cost of a gene loss event [default: %default]')
     parser.add_option('-s', '--spread_weight', dest='spread_weight', type='float',
-        help='Weight given to the spread of a cluster [default: %default]')
+        help='Weight given to the spread of a MIG [default: %default]')
     parser.add_option('-n', '--no_coords', dest='use_coords', action='store_false',
         help="Don't calculate the full pairwise distance matrix to generate coordinate points. This will cause any SPREAD_WEIGHTs to be ignored")
     parser.add_option('-f', '--coords_file', dest='coords_file', type='string',
@@ -104,7 +104,7 @@ def generate_csv(only_species, mi, params):
         exit()
     csv_data = []
     for i, clstr_info in enumerate(mi.cluster_list[params]):
-        clustID = 'cluster_%i' % i
+        clustID = 'group_%i' % i
         clust_score, _, _, seqIDs = clstr_info
         for seqID in sorted(seqIDs, reverse=True):
             spc = mi.species_mapping[seqID]
