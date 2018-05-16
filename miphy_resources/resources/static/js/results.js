@@ -18,7 +18,8 @@
   -- Seems to happen frequently if I run it with the WiFi turned off.
 
    * Technical to-do *
--- The more times a tree is re-drawn (either by changing weights or by changing colours), the more extreme the action of the +/- zoom buttons. No idea why, but fix.
+-- The more times a tree is re-drawn (either by changing weights or by changing colours), the more extreme the action of the +/- zoom buttons.
+   -- BUG: I'm almost certain it's because every time redrawTree() is called, it calls setupInteractions(), which adds handlers to those buttons. I'm betting those handler calls are stacking.
 -- If there are many species, the legend is tall, and the tree should hug the top. If their names are long, it is wide, and the tree should hug the left side of the screen.
   -- The program should make this decision based on the measured lengths (or maybe a drawing option).
 -- Mouseover on the search highlight shape should be the same as mouseover on the cluster (ideally), or perhaps just that sequence.
@@ -86,15 +87,12 @@ function setupPage() {
       parseData(data_obj);
       calculateDefaultSizes();
       displayTree();
+      setupTreeControls();
       setupSummaryStatsPane();
       setupParametersPane();
       setupOptionsPane();
       setupExportPane();
       reclusterTree();
-      panZoom = svgPanZoom('#figureSvg', {
-        fit: false,
-        center: false
-      });
       $.ajax({
         url: daemonURL('/page-loaded'),
         type: 'POST',
@@ -104,7 +102,7 @@ function setupPage() {
       });
     },
     error: function(error) { processError(error, "Error loading data from the server"); }
-  })
+  });
 }
 function parseData(data_obj) {
   // change init_weights to an object, not an array.
@@ -192,7 +190,7 @@ function displayTree() {
 
   var maxLabelLength = getMaxLabelLength(Object.keys(seqs));
   var innerCircle = opts.sizes.tree/2.0 + opts.sizes.marker_radius + opts.sizes.inner_label_buffer - 1;
-  var outerRad = innerCircle + maxLabelLength + Smits.PhyloCanvas.Render.Parameters.Circular.bufferOuterLabels + opts.sizes.species_bar + opts.sizes.bar_chart_buffer + opts.sizes.bar_chart_height;
+  var outerRad = innerCircle + maxLabelLength + Smits.PhyloCanvas.Render.Parameters.Circular.bufferOuterLabels + opts.sizes.species_bar + opts.sizes.bar_chart_buffer + opts.sizes.bar_chart_height + opts.sizes.search_buffer;
   var canvas_size = outerRad * 2;
 
   Smits.PhyloCanvas.Render.Style.connectedDash['stroke'] = 'none';
@@ -367,6 +365,7 @@ function calculateLegendOverlap(legendWidth, legendHeight) {
   return {'x':x_shift, 'y':Math.max(legendHeight-allowedHeight, 0)};
 }
 function getMaxLabelLength(orig_names) {
+  // Creates a new Raphael object, and prints the 10 longest (by character count), measuring the width of each.
   var names = orig_names.slice(), max = 0, toCheck = Math.min(names.length, 10);
   if (toCheck == 10) {
     names.sort(function(a, b) { return b.length - a.length; });
@@ -546,23 +545,7 @@ function setupInteractions() {
       $(this).removeClass('hover');
     }
   });
-  $('#searchButton').click(function() {
-    searchFunction();
-  });
-  $("#clearSearchButton").click(function() {
-    $("#searchInput").attr('value', '');
-    searchFunction();
-  });
-  $('#zoomOutButton').click(function() {
-    panZoom.zoomOut();
-  });
-  $('#zoomInButton').click(function() {
-    panZoom.zoomIn();
-  });
-  $('#zoomResetButton').click(function() {
-    panZoom.resetZoom();
-    panZoom.resetPan();
-  });
+
 }
 function startTooltip(settings) {
   // Causes tooltip to remain visible if mouse is over the tooltip or starting element.
@@ -629,6 +612,26 @@ function displaySummaryStats() {
   }
   avg = roundFloat(avg/num_sequences, 2).toFixed(2);
   $('#summaryAvgIns').text(avg);
+}
+function setupTreeControls() {
+  panZoom = svgPanZoom('#figureSvg', {
+    fit: false,
+    center: false
+  });
+  $("#clearSearchButton").click(function() {
+    $("#searchInput").attr('value', '');
+    searchFunction();
+  });
+  $('#zoomOutButton').click(function() {
+    panZoom.zoomOut();
+  });
+  $('#zoomInButton').click(function() {
+    panZoom.zoomIn();
+  });
+  $('#zoomResetButton').click(function() {
+    panZoom.resetZoom();
+    panZoom.resetPan();
+  });
 }
 function setupSummaryStatsPane() {
   $('#summaryStatsTable').empty();
@@ -978,8 +981,8 @@ function moveAwayFromCentre(point, distance) {
 function fullHighlightObject(length, seqIDs) {
   // Adapted from http://stackoverflow.com/questions/13802203/draw-a-border-around-an-arbitrarily-positioned-set-of-shapes-with-raphaeljs
   var coords = [], hull, path,
-      v, u, len, shift = opts.sizes.highlight_shift,
-      treeCentre = [treeDrawingParams['cx'], treeDrawingParams['cy']];
+      v, u, len, shift = opts.sizes.highlight_shift;
+  // Unused: treeCentre = [treeDrawingParams['cx'], treeDrawingParams['cy']]
   for (var ind=0; ind<length; ++ind) {
     var leafCoords = seqs[seqIDs[ind]]['leaf_coords'];
     if (shift > 0) { // Looks good, especially important when all nodes same distance from centre.

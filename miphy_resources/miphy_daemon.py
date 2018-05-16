@@ -268,8 +268,9 @@ class Daemon(object):
         else:
             return None, idnum, ("error, invalid session ID %s." % idnum, 559)
     def generateSessionID(self):
+        # Javascript has issues parsing a number if the string begins with a non-significant zero.
         idnum = ''.join([str(randint(0,9)) for i in range(self.sessionID_length)])
-        while idnum in self.sessions:
+        while idnum in self.sessions or idnum[0] == '0':
             idnum = ''.join([str(randint(0,9)) for i in range(self.sessionID_length)])
         return idnum
     def collect_garbage(self):

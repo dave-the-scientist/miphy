@@ -16,12 +16,11 @@ class Clusterer(object):
         self.singleton_spread = 0.0
         self.relative_avg = 'median' # One of: 'mean' or 'median'. Specifies how the average spread is calculated.
         # Could add an option to iterate refinement.
-        # #
         if verbose: print('Setting up the clusterer...')
         self.parse_gene_tree(gene_tree_data, coords_file)
         self.parse_species_tree(species_tree_data)
+        self.validate_data() # Gene tree has already been checked, this checks species tree.
         if verbose: print('Finished setting up the clusterer.')
-        #self.validate_data()
 
     # # # # #  Main method:
     def cluster(self, i_coefficient=0.5, d_coefficient=1.0, l_coefficient=1.0, spread_coefficient=1.0):
@@ -83,7 +82,7 @@ class Clusterer(object):
             elif gene not in self.species_map:
                 self.report_error('A sequence named "%s" was not mapped to a species in the information file' % (gene))
             elif self.species_map[gene] not in self.species:
-                self.report_error('Species "%s" was not present in the given species tree from the information file' % (spc))
+                self.report_error('"%s" from the species assignments was not found in the given species tree in the information file' % (self.species_map[gene]))
 
     # # # # #  Misc methods:
     def report_error(self, msg):

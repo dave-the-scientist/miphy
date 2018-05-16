@@ -50,7 +50,6 @@ tbody tr.clusterRow.hover,
   text-align: center;
   line-height: normal;
 }
-
 .cont-pair-left {
   border-right: 0px;
   border-top-left-radius: 4px;
@@ -63,6 +62,7 @@ tbody tr.clusterRow.hover,
 .cont-element::-moz-focus-inner {
   border: 0;
 }
+
 #searchInput {
   height: 23px; /*Needs to be 2*border-width smaller than the button.*/
   background-color: #ffffff;
@@ -141,10 +141,10 @@ tbody tr.clusterRow.hover,
   width: 40%;
 }
 #clustersTable {
-  border-collapse: separate;
+  /*border-collapse: separate;*/
 }
 .clusterRow {
-  line-height: 15px;
+  line-height: 17px;
 }
 #optionsPane {
   width: 380px;

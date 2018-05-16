@@ -131,6 +131,7 @@ $(document).ready(function(){
 
   $("#viewResultsButton").click(function(){
     if (results_processed == true) {
+      // This open call must be in response to a user click, or it'll be blocked by the browser.
       window.open(results_url+'?'+session_id, '_blank');
     } else {
       alert("You must upload and process valid files before viewing the MIPhy results.");
