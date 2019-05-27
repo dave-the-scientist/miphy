@@ -2,7 +2,9 @@ import os, sys, threading
 from collections import deque
 from random import randint
 from flask import Flask, request, render_template, json
-from miphy_resources.miphy_instance import MiphyInstance, MiphyValidationError
+from miphy_resources.miphy_instance import MiphyInstance
+from miphy_resources.miphy_common import MiphyValidationError, MiphyRuntimeError
+from miphy_resources.phylo import PhyloValueError
 
 if sys.version_info >= (3,0): # Python 3.x imports
     from io import StringIO
@@ -33,8 +35,9 @@ class Daemon(object):
     or similar, and the program isn't meant to ever end.
       This class defines several custom HTTP status codes used to signal errors:
     550 - Specific error validating the user's tree.
-    551 - Unknown error validating the user's tree.
+    551 - Error loading the user's tree file.
     552 - Error parsing options or data sent from web Upload form.
+    558 - Unknown error validating the user's tree.
     559 - A request was received with an unrecognized session ID.
     """
     def __init__(self, server_port, web_server=False, instance_timeout_inf=False, verbose=False):
@@ -126,17 +129,20 @@ class Daemon(object):
                 gene_tree_data = request.files['tree-file'].read()
                 info_data = request.files['info-file'].read()
                 use_coords = request.form['usecoords']
+                gene_tree_format = request.form['treeformat']
             except Exception as err:
                 return (str(err), 552)
             if use_coords == 'true': use_coords = True
             elif use_coords == 'false': use_coords = False
             else: return ('error parsing usecoords value: "%s"' % use_coords, 552)
             try:
-                idnum = self.new_instance(gene_tree_data, info_data, use_coords=use_coords)
+                idnum = self.new_instance(gene_tree_data, info_data, gene_tree_format, use_coords=use_coords)
             except MiphyValidationError as err:
                 return (str(err), 550)
-            except Exception as err:
+            except PhyloValueError as err:
                 return (str(err), 551)
+            except Exception as err:
+                return (str(err), 558)
             numseqs = self.sessions[idnum].num_sequences
             spc = self.sessions[idnum].species
             action_msg, action_info = '', ''
@@ -211,13 +217,13 @@ class Daemon(object):
             return render_template('/monitor.html')
         # # #  END OF TESTING.
 
-    def new_instance(self, gene_tree_data, info_data, use_coords=True, coords_file=''):
+    def new_instance(self, gene_tree_data, info_data, gene_tree_format, use_coords=True, coords_file=''):
         if type(info_data) == bytes:
             info_data = info_data.decode()
         if type(gene_tree_data) == bytes:
             gene_tree_data = gene_tree_data.decode()
         idnum = self.generateSessionID()
-        self.sessions[idnum] = MiphyInstance(gene_tree_data, info_data, self.allowed_wait, use_coords, coords_file, self.verbose, refine_limit=self.server_refine_limit)
+        self.sessions[idnum] = MiphyInstance(gene_tree_data, info_data, gene_tree_format, self.allowed_wait, use_coords, coords_file, self.verbose, refine_limit=self.server_refine_limit)
         return idnum
     def process_instance(self, idnum, params):
         self.sessions[idnum].processed(params)

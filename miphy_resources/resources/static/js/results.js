@@ -238,15 +238,26 @@ function addSpeciesBarToTree() {
       $xml = $(xmlDoc);
   var ns = $xml.children()[0].prefix, prefix = '';
   if (ns != null) { prefix = ns + '\\:'; }
-  var $render = $(prefix+"phyloxml "+prefix+"phylogeny render", xmlDoc);
-  var $charts = $("charts", $render);
+  // Add the top-level style elements:
+  var $phylogeny = $(prefix+"phyloxml "+prefix+"phylogeny", xmlDoc);
+  var $render = $("<render />").appendTo($phylogeny);
+  var $charts = $("<charts />").appendTo($render);
+  var $styles = $("<styles />").appendTo($render);
+  // Fill out the top-level style elements:
   $charts.append('<species type="binary" bufferInner="0" thickness="'+opts.sizes.species_bar+'"></species>');
-  var $styles = $("styles", $render);
   var styleStr = '';
   for (var spc in species_colours) {
     styleStr += '<'+spc+'_style fill="'+species_colours[spc]+'" stroke="#FFF" stroke-width="1"></'+spc+'_style>';
   }
   $styles.append(styleStr);
+  // Add and fill out the individual species elements for each leaf:
+  var name;
+  $("clade name", $phylogeny).each(function() {
+    name = $(this).text();
+    $(this).parent().append(
+      $("<chart><species>"+sequence_species[name]+"_style</species></chart>")
+    );
+  });
   var serializer = new XMLSerializer();
   tree_data = serializer.serializeToString(xmlDoc);
 }
@@ -259,6 +270,7 @@ function drawSpeciesMarkers() {
     seqID = txt.text();
     nodeCoords = parseLeafTextCoords(this);
     leafX=nodeCoords[0], leafY=nodeCoords[1], textX=nodeCoords[2], textY=nodeCoords[3];
+
     seqs[seqID]['leaf_coords'] = [leafX, leafY];
     //seqs[seqID]['text_coords'] = [textX, textY];
     seqs[seqID]['text_coords'] = moveAwayFromCentre([textX, textY], 5);

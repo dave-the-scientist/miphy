@@ -52,12 +52,34 @@ function setupParametersPane() {
       spreadSpin.spinner('disable');
     }
   });
+  $("#upload-tree-input").change(function() {
+    var file_obj = $("#upload-tree-input")[0].files[0];
+    if (file_obj) {
+      var filename = file_obj.name,
+        suffix = parseFileSuffix(filename);
+      if (suffix == 'nwk' || suffix == 'tree' || suffix == 'newick') {
+        $("#upload-file-type-select").val('newick');
+      } else if (suffix == 'nxs' || suffix == 'nex' || suffix == 'nexus') {
+        $("#upload-file-type-select").val('nexus');
+      } else if (suffix == 'xml' || suffix == 'phyloxml') {
+        $("#upload-file-type-select").val('phyloxml');
+      } else if (suffix == 'nexml') {
+        $("#upload-file-type-select").val('nexml');
+      }
+    }
+  });
   $("#uploadButton").click(function() {
     if (validateUploadValues(ilsSpin, dupsSpin, lossSpin, spreadSpin) == false) {
       return false;
     }
     var form_data = new FormData($('#upload-files')[0]); // The 2 uploaded files
     form_data.append('usecoords', $("#spreadRefinementCheck")[0].checked); // The state of the 'Spread refinement' check box
+    var tree_format = $("#upload-file-type-select").val();
+    if (tree_format == null) {
+      alert('Please specify the file format of the gene tree.');
+      return false;
+    }
+    form_data.append('treeformat', tree_format);
     var param_data = {'ILS':ilsSpin.spinner('value'), 'dups':dupsSpin.spinner('value'),
       'loss':lossSpin.spinner('value'), 'spread':spreadSpin.spinner('value')};
     results_processed = false;
@@ -145,15 +167,25 @@ function processError(error, message) {
   if (error.status == 550) {
     alert("Error validating the uploaded files: "+error.responseText);
   } else if (error.status == 551) {
-    alert("Unknown error while validating the uploaded files: "+error.responseText);
+    alert("Problem loading the given tree file. "+error.responseText);
   } else if (error.status == 552) {
-    alert("Error sending files or Spread refinement option to the server: "+error.responseText);
+    alert("Error sending files, Spread refinement option, and file format to the server: "+error.responseText);
+  } else if (error.status == 558) {
+    alert("Unknown error while validating the uploaded files: "+error.responseText);
   } else {
     alert(message+"; the server returned code "+error.status);
   }
 }
 function daemonURL(url) {
   return server_url + '/daemon' + url;
+}
+function parseFileSuffix(filename) {
+  // Taken from https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript
+  var file_parts = filename.split(".");
+  if ( file_parts.length === 1 || (file_parts[0] === "" && file_parts.length === 2) ) {
+    return "";
+  }
+  return file_parts.pop().toLowerCase();
 }
 function validateUploadValues(ilsSpin, dupsSpin, lossSpin, spreadSpin) {
   if ($('#upload-tree-input')[0].files.length != 1 || $('#upload-info-input')[0].files.length != 1) {

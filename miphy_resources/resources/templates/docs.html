@@ -61,6 +61,12 @@
           <p>MIPhy is free to use and download, but if you find it useful it in your research please cite: <a href="https://www.ncbi.nlm.nih.gov/pubmed/29868279" target="_blank">(Curran <i>et al</i>., 2018)</a>.</p>
         </div>
 
+        <div id="treesPane" class="style-box">
+          <h2>The trees</h2>
+          <p>MIPhy requires two phylogenetic trees as input: a gene tree, and a species tree that is contained in the information file. The species tree must be rooted, and it is important that the root reflects the true evolutionary lineage of the species. Any branch lengths in the species tree will be ignored, so a cladogram is perfectly acceptable. If you do not yet have a species tree, the easiest way to generate one is to use the <a href="https://www.ncbi.nlm.nih.gov/Taxonomy/CommonTree/wwwcmt.cgi">NCBI Taxonomy Common Tree</a>. Input your species of interest, save as a Phylip tree, and then convert that file into the Newick format.</p>
+          <p>The gene tree may be unrooted, but if so the visualization modules of MIPhy will not work, so it can only be run using a local version of the software along with the "-r" flag. If the gene tree is rooted, MIPhy does not require that the root is evolutionarily correct, only that it is in a sensible location. In essence, this means that the root probably shouldn't be placed between two short branches. The simplest way to root a gene tree is to just use the "Midpoint root" functionality present in many phylogenetic viewer programs such as <a href="http://tree.bio.ed.ac.uk/software/figtree/">FigTree</a>.</p>
+        </div>
+
         <div id="algorithmPane" class="style-box">
           <h2>The algorithm</h2>
           <p>The most parsimonious sequence of gene events (duplication, loss, and incongruence) is found that reconciles the given gene and species trees, and these events are mapped on to the internal nodes of the gene tree. A score for each node is calculated as the weighted sum of these gene events in that node's descendants; these descendant sequences would be considered to be in the same group under that node. The clustering algorithm then identifies the set of nodes such that each sequence in the tree is contained in exactly one group, and the sum of all group scores is at a minimum. These resulting groups are referred to as minimum instability groups (MIGs), and each sequence in a MIG receives the same instability score.</p>

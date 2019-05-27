@@ -22,6 +22,9 @@
 #upload-files input {
   margin-bottom: 10px;
 }
+#upload-file-type-select {
+  margin-bottom: 15px;
+}
 #uploadButton {
   width: 100%;
   text-align: center;

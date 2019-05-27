@@ -19,12 +19,12 @@ __version__ = '0.9.2'
 
 
 def setup_parser():
-    usage_str = "python %prog GENE_TREE.nwk INFO_FILE.txt [OPTIONS]\n\nCluster a gene tree into minimum instability groups (MIGs), and quantify the phylogenetic stability of each."
+    usage_str = "python %prog GENE_TREE INFO_FILE [OPTIONS]\n\nCluster a gene tree into minimum instability groups (MIGs), and quantify the phylogenetic stability of each."
     version_str = "%%prog %s" % __version__
     parser = OptionParser(usage=usage_str, version=version_str)
-    parser.set_defaults(dup_weight=1.0, inc_weight=0.5, loss_weight=1.0, spread_weight=1.0,
-        use_coords=True, coords_file='', results_file='', only_species='',
-        manual_browser=False, server_port=0, test=False, verbose=False)
+    parser.set_defaults(tree_format='n', dup_weight=1.0, inc_weight=0.5, loss_weight=1.0, spread_weight=1.0, use_coords=True, coords_file='', results_file='', only_species='', manual_browser=False, server_port=0, test=False, verbose=False)
+    parser.add_option('-f', '--tree_format', dest='tree_format', type='string',
+        help='File format of the given gene tree. Must be one of: n (Newick), e (Nexus), p (PhyloXML), or x (NeXML) [default: %default]')
     parser.add_option('-i', '--inc_weight', dest='inc_weight', type='float',
         help='Cost of an incongruence event [default: %default]')
     parser.add_option('-d', '--duplication_weight', dest='dup_weight', type='float',
@@ -34,8 +34,8 @@ def setup_parser():
     parser.add_option('-s', '--spread_weight', dest='spread_weight', type='float',
         help='Weight given to the spread of a MIG [default: %default]')
     parser.add_option('-n', '--no_coords', dest='use_coords', action='store_false',
-        help="Don't calculate the full pairwise distance matrix to generate coordinate points. This will cause any SPREAD_WEIGHTs to be ignored")
-    parser.add_option('-f', '--coords_file', dest='coords_file', type='string',
+        help="Don't calculate the full pairwise distance matrix to generate coordinate points. This will cause SPREAD_WEIGHT to be ignored")
+    parser.add_option('-c', '--coords_file', dest='coords_file', type='string',
         help="Load the coordinate points if COORDS_FILE exists, or calculate and save them if it does not. This prevents recalculation of the full pairwise distance matrix, which can be time-consuming for large trees. IMPORTANT: this must be recalculated if any sequences are added to or removed from the gene tree")
     parser.add_option('-r', '--results_file', dest='results_file', type='string',
         help="Save the clustering patterns and instability scores to this file, instead of visualizing the results in a web browser. Use the --only_species option to filter the results")
@@ -44,7 +44,7 @@ def setup_parser():
     parser.add_option('-m', '--manual_browser', dest='manual_browser', action='store_true',
         help="Starts the MIPhy daemon, but doesn't automatically open the results with your default web browser. A URL will be printed allowing you to access the results using your web browser of choice")
     parser.add_option('-p', '--port', dest='server_port', type='int',
-        help='Port used to communicate between MIPhy and the visualization page; setting to 0 will cause your OS to pick one at random [default: %default]')
+        help='Port used by MIPhy to communicate with the visualization page; setting to 0 will cause your OS to pick one at random [default: %default]')
     parser.add_option('--test', dest='test', action='store_true',
         help="Run MIPhy on included test data and exit")
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
@@ -52,7 +52,7 @@ def setup_parser():
     return parser
 def validate_args(parser, args):
     if not len(args) == 2:
-        parser.error('incorrect number of arguments. You must supply a tree in newick format and an information file.')
+        parser.error('incorrect number of arguments. You must supply a gene tree and an information file.')
     gene_tree_file, info_file = os.path.realpath(args[0]), os.path.realpath(args[1])
     if not os.path.isfile(gene_tree_file):
         parser.error('could not locate the gene tree at %s.' % gene_tree_file)
@@ -60,6 +60,10 @@ def validate_args(parser, args):
         parser.error('could not locate the info file at %s.' % info_file)
     return gene_tree_file, info_file
 def validate_options(parser, opts):
+    # Validate tree formats
+    if opts.tree_format.lower() not in ('n', 'e', 'p', 'x'):
+        parser.error('the tree format option (-f; --tree_format) must be one of: n (Newick), e (Nexus), p (PhyloXML), or x (NeXML)')
+    tree_format = {'n':'newick', 'e':'nexus', 'p':'phyloxml', 'x':'nexml'}[opts.tree_format.lower()]
     # Validate weights.
     d_weight, i_weight = opts.dup_weight, opts.inc_weight
     l_weight, spread_weight = opts.loss_weight, opts.spread_weight
@@ -79,7 +83,7 @@ def validate_options(parser, opts):
     if coords_file:
         coords_file = os.path.abspath(coords_file)
         if not use_coords:
-            parser.error('if you specify -n, you should not supply a file with -f')
+            parser.error('if you specify -n, you should not supply a file with -c')
     if not use_coords:
         spread_weight = 0.0
     # Validate results file options.
@@ -92,9 +96,7 @@ def validate_options(parser, opts):
             parser.error('if --only_species is given, a results file must be specified with --results_file')
         only_species = only_species.split(',')
     only_species = set(only_species)
-    return {'params':(i_weight,d_weight,l_weight,spread_weight), 'server_port':server_port,
-        'coords_file':coords_file, 'use_coords':use_coords,
-        'results_file':results_file, 'only_species':only_species}
+    return {'tree_format':tree_format, 'params':(i_weight,d_weight,l_weight,spread_weight), 'server_port':server_port, 'coords_file':coords_file, 'use_coords':use_coords, 'results_file':results_file, 'only_species':only_species}
 
 def generate_csv(only_species, mi, params):
     # This should return the same data as the #exportButton.click() call inside setupExportPane() in results.js
@@ -135,17 +137,14 @@ def test_miphy():
     # non-binary tree -
     print('in test. will be implemented soon.')
 
+# If clusterer.py finds a validation error, such as sequences classified as some species but that species is missing from the species tree, it gives an appropriate error message on the local version. the online version just crashes with a generic 502 error. Fix that.
 # For the local version, if you upload and run miphy, but neer click view, then closet he browser, it hangs.
-# Apparently the branch lengths can sometimes be negative in trees.
-# - Add a check for this on the upload page.
 # Rearrange help output into option groups.
 # When run, check number of sequences, print message warning about long run time if it's large.
     # Also that the web browser is unlikely to ever load. If that is true.
 # Create a test module. Begun with a flag, tests setup and imports, tests calculations, tests server, tests visualization.
-# Add function to miphy-tools that sanitizes sequence names in nwk file; removes ' marks that FigTree puts there if there is a / in the seq name.
 # Make sure this is robust. If it can't handle non-binary trees, ensure the user's trees are binary.
   # Crashes badly on non-binary trees.
-# Clean up newick_to_coords file. Rename, move code into classes, ensure it is useful standalone.
 # FOR V2:
 # - Add option to specify singleton spread?
 
@@ -160,9 +159,8 @@ if __name__ == '__main__':
     gene_tree_data = open(gene_tree_file).read().strip()
     info_data = open(info_file).read()
     options = validate_options(parser, opts)
-
     if options['results_file']: # Don't need to start the MIPhy server.
-        mi = MiphyInstance(gene_tree_data, info_data, allowed_wait={}, use_coords=options['use_coords'], coords_file=options['coords_file'], verbose=opts.verbose)
+        mi = MiphyInstance(gene_tree_data, info_data, gene_tree_format=options['tree_format'], allowed_wait={}, use_coords=options['use_coords'], coords_file=options['coords_file'], verbose=opts.verbose)
         mi.processed(options['params'])
         data = generate_csv(options['only_species'], mi, options['params'])
         with open(options['results_file'], 'wb') as f:
@@ -170,7 +168,7 @@ if __name__ == '__main__':
         print('\nInstability scores saved to %s' % options['results_file'])
     else: # Start the MIPhy server.
         daemon = miphy_daemon.Daemon(options['server_port'], web_server=False, instance_timeout_inf=opts.manual_browser, verbose=opts.verbose)
-        idnum = daemon.new_instance(gene_tree_data, info_data, use_coords=options['use_coords'], coords_file=options['coords_file'])
+        idnum = daemon.new_instance(gene_tree_data, info_data, gene_tree_format=options['tree_format'], use_coords=options['use_coords'], coords_file=options['coords_file'])
         daemon.process_instance(idnum, options['params'])
         results_url = 'http://127.0.0.1:%i/results?%s' % (options['server_port'], idnum)
         if opts.manual_browser:

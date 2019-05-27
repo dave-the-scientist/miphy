@@ -1,23 +1,29 @@
 import time
 import xml.etree.ElementTree as ET
-from miphy_resources.convert import NewickToPhyloxml
 from miphy_resources.clusterer import Clusterer
+from miphy_resources.miphy_common import MiphyValidationError, MiphyRuntimeError
+from miphy_resources import phylo
 
 
 class MiphyInstance(object):
-    def __init__(self, gene_tree_data, info_data, allowed_wait, use_coords, coords_file, verbose, refine_limit=None):
+    def __init__(self, gene_tree_data, info_data, gene_tree_format, allowed_wait, use_coords, coords_file, verbose, refine_limit=None):
         self.clusters, self.scores, self.cluster_list, self.init_weights = {}, {}, {}, []
         self.use_coords = use_coords
         self.verbose = verbose
         self.species_tree_data, self.species_mapping = self.parse_species_tree_mapping(info_data)
         if self.verbose: print('Finished parsing the info file.')
         self.species = sorted(list(set(self.species_mapping.values())))
-        self.tree = Tree(gene_tree_data, self.species_mapping)
-        self.num_sequences = self.tree.size
-        if refine_limit and self.num_sequences > refine_limit:
-            self.use_coords = False
-        self.tree_data = self.tree.data
-        self.clusterer = Clusterer(gene_tree_data, self.species_tree_data, self.species_mapping, use_coords, coords_file, self.verbose)
+        if gene_tree_format == 'newick':
+            gene_tree = phylo.load_newick_string(gene_tree_data)
+        elif gene_tree_format == 'nexus':
+            gene_tree = phylo.load_nexus_string(gene_tree_data)
+        elif gene_tree_format == 'phyloxml':
+            gene_tree = phylo.load_phyloxml_string(gene_tree_data)
+        elif gene_tree_format == 'nexml':
+            gene_tree = phylo.load_nexml_string(gene_tree_data)
+        self.num_sequences = len(gene_tree.leaves)
+        self.tree_data = gene_tree.phyloxml_string(support_values=False, comments=False, internal_names=False)
+        self.clusterer = Clusterer(gene_tree, self.species_tree_data, self.species_mapping, use_coords, coords_file, self.verbose)
         self.sequence_names = self.clusterer.gene_leaves
         # # Code to clean dead instances:
         self.been_processed, self.html_loaded = False, False
@@ -103,74 +109,3 @@ class MiphyInstance(object):
                 buff.append(line)
         info[group] = buff
         return info
-
-
-class Tree(object):
-    def __init__(self, gene_tree_data, species_mapping):
-        converter = NewickToPhyloxml(gene_tree_data)
-        self.validateTree(converter, species_mapping)
-        self.configureTree(converter.etree, species_mapping)
-        self.data = converter.tostring()
-        self.size = len(converter.leaves)
-
-    def configureTree(self, tree_xml, species_mapping):
-        for child in tree_xml:
-            tag = child.tag.lower()
-            if 'phylogeny' in tag:
-                phylogeny = child
-                ns = child.tag[ : tag.find('phylogeny')] # xml namespace
-                break
-        else:
-            print('Error parsing phyloxml file of tree')
-            exit()
-        # Clean out render, charts, styles, if any data was present.
-        render = self.subElement(phylogeny, 'render')
-        charts = self.subElement(render, 'charts')
-        styles = self.subElement(render, 'styles')
-        for clade in tree_xml.findall(".//%sname/.." % ns):
-            seqID = clade.find("%sname" % ns).text
-            spcs = species_mapping[seqID]
-            for child in clade:
-                if child.tag in ('annotation', "%sannotation" % ns):
-                    clade.remove(child)
-            chrt = self.subElement(clade, 'chart')
-            species = self.subElement(chrt, 'species')
-            species.text = spcs+'_style'
-    def validateTree(self, converter, species_mapping):
-        missing_genes = []
-        for gene in converter.leaves:
-            count = converter.leaves.count(gene)
-            if count != 1:
-                raise MiphyValidationError('a sequence named "%s" was not unique in the tree data; it was found %i times' % (gene, count))
-            if gene not in species_mapping:
-                if gene[0] == gene[-1] == "'" and gene[1:-1] in species_mapping:
-                    species_mapping[gene] = species_mapping[gene[1:-1]]
-                    del species_mapping[gene[1:-1]]
-                else:
-                    missing_genes.append(gene)
-        if missing_genes:
-            missing_genes.sort()
-            raise MiphyValidationError('%i sequences from the tree were not found in the species mapping information file:\n%s' % (len(missing_genes), ','.join(missing_genes)))
-        if converter.degree[0] != 2 or converter.degree[1] != 2:
-            raise MiphyValidationError('the gene tree must be binary; it currently ranges from degree %i to %i. Unrooted trees may appear to be non-binary, so rooting your tree may solve this issue.' % (converter.degree[0],converter.degree[1]))
-        if converter.named_internal_nodes == True:
-            raise MiphyValidationError('the gene tree included non-terminal nodes with names; these names should be removed.')
-    # # #  Private methods:
-    def subElement(self, parent, tag):
-        for child in parent:
-            if child.tag == tag:
-                return child
-        return ET.SubElement(parent, tag)
-    def newChildWithAttribs(self, parent, tag, attribs):
-        child = self.subElement(parent, tag)
-        for key, val in attribs:
-            child.set(key, val)
-        return child
-
-
-class MiphyValidationError(ValueError):
-    def __init__(self, *args, **kwargs):
-        ValueError.__init__(self, *args, **kwargs)
-class MiphyRuntimeError(RuntimeError):
-    def __init__(self, *args, **kwargs):
-        RuntimeError.__init__(self, *args, **kwargs)

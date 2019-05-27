@@ -78,6 +78,13 @@
           <form id="upload-files" method="post" enctype="multipart/form-data">
             <label for="tree-file"><b>Upload a gene tree file</b></label>
             <input id="upload-tree-input" name="tree-file" type="file">
+            <select id="upload-file-type-select">
+              <option selected disabled>Choose file type</option>
+              <option value="newick">Newick tree</option>
+              <option value="nexus">NEXUS tree</option>
+              <option value="phyloxml">PhyloXML tree</option>
+              <option value="nexml">NeXML tree</option>
+            </select>
             <div class="clearfix"></div>
             <label for="info-file"><b>Upload an information file</b></label>
             <input id="upload-info-input" name="info-file" type="file">

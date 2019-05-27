@@ -3,11 +3,12 @@
 
 import os
 import numpy as np
-from miphy_resources import newick_to_coords
+from miphy_resources.miphy_common import MiphyValidationError, MiphyRuntimeError
+from miphy_resources import phylo
 
 
 class Clusterer(object):
-    def __init__(self, gene_tree_data, species_tree_data, species_map, use_coords, coords_file, verbose=False):
+    def __init__(self, gene_tree, species_tree_data, species_map, use_coords, coords_file, verbose=False):
         self.species_map = species_map
         self.use_coords = use_coords
         self.verbose = verbose
@@ -17,7 +18,7 @@ class Clusterer(object):
         self.relative_avg = 'median' # One of: 'mean' or 'median'. Specifies how the average spread is calculated.
         # Could add an option to iterate refinement.
         if verbose: print('Setting up the clusterer...')
-        self.parse_gene_tree(gene_tree_data, coords_file)
+        self.parse_gene_tree(gene_tree, coords_file)
         self.parse_species_tree(species_tree_data)
         self.validate_data() # Gene tree has already been checked, this checks species tree.
         if verbose: print('Finished setting up the clusterer.')
@@ -44,50 +45,42 @@ class Clusterer(object):
         return clusters, scores
 
     # # # # #  Option parsing and checking methods:
-    def parse_gene_tree(self, gene_tree_data, coords_file):
-        nwk_str = gene_tree_data.strip()
-        gene_root, gene_leaves, _, edges, gene_parent, gene_paths = newick_to_coords.parse_newick_data(nwk_str)
-        gene_children = newick_to_coords.find_children(gene_parent)
+    def parse_gene_tree(self, gene_tree, coords_file):
+        self.gene_leaves = gene_tree.get_named_leaves()
+        self.gene_leaves_set = set(self.gene_leaves)
+        self.gene_root = gene_tree.root.name
+        self.gene_children = gene_tree.get_named_children()
         if self.use_coords:
             if not coords_file or not os.path.isfile(coords_file):
-                self.coords = newick_to_coords.calculate_coordinates(gene_leaves, gene_paths, edges, 0, self.verbose)
+                _, self.coords = gene_tree.get_leaf_coordinate_points()
             else:
                 if self.verbose: print('-- Loading coordinate points from %s...' % coords_file)
                 try:
                     self.coords = self._load_coords(coords_file)
                 except Exception as err:
-                    self.report_error('could not load the distance matrix at %s; the error: %s' % (matrix_file, str(err)))
-                if self.coords.shape[0] != len(gene_leaves):
-                    self.report_error('the loaded coords do not match the given gene tree')
+                    raise MiphyValidationError('could not load the distance matrix at {}; the error: {}'.format(matrix_file, str(err)))
+                if self.coords.shape[0] != len(self.gene_leaves):
+                    raise MiphyValidationError('the loaded coords do not match the given gene tree')
                 if self.verbose: print('-- Complete. Loaded coordinates for %i sequences using %i dimensions' % (self.coords.shape[0], self.coords.shape[1]))
             if coords_file and not os.path.isfile(coords_file):
                 self._save_coords(self.coords, coords_file)
                 print('Saved coordinate points to %s' % coords_file)
         else:
             self.coords = None
-        self.gene_root = gene_root
-        self.gene_leaves = gene_leaves
-        self.gene_paths = gene_leaves
-        self.gene_children = gene_children
     def parse_species_tree(self, species_tree_data):
-        _, species, _,_,_, species_paths = newick_to_coords.parse_newick_data(species_tree_data)
-        self.species = species
-        self.species_paths = species_paths
-        self.num_species = len(species)
+        spc_tree = phylo.load_newick_string(species_tree_data)
+        self.species = spc_tree.get_named_leaves()
+        self.species_paths = spc_tree.get_named_paths()
+        self.num_species = len(self.species)
     def validate_data(self):
         # ensure gene tree is binary.
         for gene in self.gene_leaves:
-            if self.gene_leaves.count(gene) > 1:
-                self.report_error('%i sequences named "%s" were found in the given gene tree' % (gene_leaves.count(gene), gene))
-            elif gene not in self.species_map:
-                self.report_error('A sequence named "%s" was not mapped to a species in the information file' % (gene))
+            if gene not in self.species_map:
+                raise MiphyValidationError('A sequence named "{}" was not mapped to a species in the information file'.format(gene))
             elif self.species_map[gene] not in self.species:
-                self.report_error('"%s" from the species assignments was not found in the given species tree in the information file' % (self.species_map[gene]))
+                raise MiphyValidationError('"{}" from the species assignments was not found in the given species tree in the information file'.format(self.species_map[gene]))
 
     # # # # #  Misc methods:
-    def report_error(self, msg):
-        print('\nError: %s.\n' % msg)
-        exit()
     def recent_common_ancestor(self, species):
         if len(set(species)) == 1:
             return species[0]
@@ -105,7 +98,7 @@ class Clusterer(object):
         return coords
     # # # # #  Private methods:
     def _calc_clusters(self, node, params):
-        if node in self.gene_leaves:
+        if node in self.gene_leaves_set:
             species = self.species_map[node]
             n = _PhyloST_node(node, species)
             n.m = self._calc_loss_events((species,))
@@ -170,13 +163,13 @@ class Clusterer(object):
         elif self.relative_avg == 'mean':
             avg_spread = sum(spreads) / float(len(spreads))
         else:
-            self.report_error('Incorrect value (%s) given for the "relative_avg" attribute; must be either "mean" or "median".' % self.relative_avg)
+            raise MiphyRuntimeError('Incorrect value ({}) given for the "relative_avg" attribute; must be either "mean" or "median".'.format(self.relative_avg))
         self._recalc_clusters(self.gene_root, params, avg_spread)
     def _recalc_clusters(self, node, params, avg_spread):
         """Overwrites the .clusters and .cluster_roots atts of the nodes, and
         modifies total_score."""
         n = self.nodes[node]
-        if node in self.gene_leaves:
+        if node in self.gene_leaves_set:
             n.clusters = [[node]]
             n.cluster_roots = [node]
             spread_score = self.spread_calc([node], avg_spread)
