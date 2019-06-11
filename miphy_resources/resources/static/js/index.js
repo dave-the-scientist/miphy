@@ -52,22 +52,6 @@ function setupParametersPane() {
       spreadSpin.spinner('disable');
     }
   });
-  $("#upload-tree-input").change(function() {
-    var file_obj = $("#upload-tree-input")[0].files[0];
-    if (file_obj) {
-      var filename = file_obj.name,
-        suffix = parseFileSuffix(filename);
-      if (suffix == 'nwk' || suffix == 'tree' || suffix == 'newick') {
-        $("#upload-file-type-select").val('newick');
-      } else if (suffix == 'nxs' || suffix == 'nex' || suffix == 'nexus') {
-        $("#upload-file-type-select").val('nexus');
-      } else if (suffix == 'xml' || suffix == 'phyloxml') {
-        $("#upload-file-type-select").val('phyloxml');
-      } else if (suffix == 'nexml') {
-        $("#upload-file-type-select").val('nexml');
-      }
-    }
-  });
   $("#uploadButton").click(function() {
     if (validateUploadValues(ilsSpin, dupsSpin, lossSpin, spreadSpin) == false) {
       return false;
@@ -178,14 +162,6 @@ function processError(error, message) {
 }
 function daemonURL(url) {
   return server_url + '/daemon' + url;
-}
-function parseFileSuffix(filename) {
-  // Taken from https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript
-  var file_parts = filename.split(".");
-  if ( file_parts.length === 1 || (file_parts[0] === "" && file_parts.length === 2) ) {
-    return "";
-  }
-  return file_parts.pop().toLowerCase();
 }
 function validateUploadValues(ilsSpin, dupsSpin, lossSpin, spreadSpin) {
   if ($('#upload-tree-input')[0].files.length != 1 || $('#upload-info-input')[0].files.length != 1) {

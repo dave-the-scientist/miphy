@@ -22,9 +22,9 @@ def setup_parser():
     usage_str = "python %prog GENE_TREE INFO_FILE [OPTIONS]\n\nCluster a gene tree into minimum instability groups (MIGs), and quantify the phylogenetic stability of each."
     version_str = "%%prog %s" % __version__
     parser = OptionParser(usage=usage_str, version=version_str)
-    parser.set_defaults(tree_format='n', dup_weight=1.0, inc_weight=0.5, loss_weight=1.0, spread_weight=1.0, use_coords=True, coords_file='', results_file='', only_species='', manual_browser=False, server_port=0, test=False, verbose=False)
+    parser.set_defaults(tree_format='a', dup_weight=1.0, inc_weight=0.5, loss_weight=1.0, spread_weight=1.0, use_coords=True, coords_file='', results_file='', only_species='', manual_browser=False, server_port=0, test=False, verbose=False)
     parser.add_option('-f', '--tree_format', dest='tree_format', type='string',
-        help='File format of the given gene tree. Must be one of: n (Newick), e (Nexus), p (PhyloXML), or x (NeXML) [default: %default]')
+        help='File format of the given gene tree. Must be one of: a (auto-detect), n (Newick), e (NEXUS), p (PhyloXML), or x (NeXML) [default: %default]')
     parser.add_option('-i', '--inc_weight', dest='inc_weight', type='float',
         help='Cost of an incongruence event [default: %default]')
     parser.add_option('-d', '--duplication_weight', dest='dup_weight', type='float',
@@ -61,9 +61,9 @@ def validate_args(parser, args):
     return gene_tree_file, info_file
 def validate_options(parser, opts):
     # Validate tree formats
-    if opts.tree_format.lower() not in ('n', 'e', 'p', 'x'):
-        parser.error('the tree format option (-f; --tree_format) must be one of: n (Newick), e (Nexus), p (PhyloXML), or x (NeXML)')
-    tree_format = {'n':'newick', 'e':'nexus', 'p':'phyloxml', 'x':'nexml'}[opts.tree_format.lower()]
+    if opts.tree_format.lower() not in ('a', 'n', 'e', 'p', 'x'):
+        parser.error('the tree format option (-f; --tree_format) must be one of: a (auto-detect), n (Newick), e (NEXUS), p (PhyloXML), or x (NeXML)')
+    tree_format = {'a':'auto', 'n':'newick', 'e':'nexus', 'p':'phyloxml', 'x':'nexml'}[opts.tree_format.lower()]
     # Validate weights.
     d_weight, i_weight = opts.dup_weight, opts.inc_weight
     l_weight, spread_weight = opts.loss_weight, opts.spread_weight

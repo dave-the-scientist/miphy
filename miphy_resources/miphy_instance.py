@@ -13,7 +13,9 @@ class MiphyInstance(object):
         self.species_tree_data, self.species_mapping = self.parse_species_tree_mapping(info_data)
         if self.verbose: print('Finished parsing the info file.')
         self.species = sorted(list(set(self.species_mapping.values())))
-        if gene_tree_format == 'newick':
+        if gene_tree_format == 'auto':
+            gene_tree = phylo.load_tree_string(gene_tree_data)
+        elif gene_tree_format == 'newick':
             gene_tree = phylo.load_newick_string(gene_tree_data)
         elif gene_tree_format == 'nexus':
             gene_tree = phylo.load_nexus_string(gene_tree_data)
