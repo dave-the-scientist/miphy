@@ -78,7 +78,7 @@ class MiphyInstance(object):
     # # #  Data parsing:
     def parse_species_tree_mapping(self, info_data):
         info = self.parse_info_data(info_data)
-        species_tree_data = info['species tree'][0]
+        species_tree_data = ''.join(info['species tree'])
         species_mapping = {}
         for line in info['species assignments']:
             line = line.strip()
@@ -87,6 +87,8 @@ class MiphyInstance(object):
             elif '=' in line:
                 spc, _, genes = line.partition('=')
                 spc = spc.strip()
+                if spc != ''.join(spc.split()):
+                    raise MiphyValidationError("detected a blank in the species name '{}' in the information file. Newick trees cannot contain blanks.".format(spc))
             else:
                 genes = line
             for gene in genes.split(','):
