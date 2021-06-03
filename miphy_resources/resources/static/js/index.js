@@ -57,7 +57,8 @@ function setupParametersPane() {
       return false;
     }
     var form_data = new FormData($('#upload-files')[0]); // The 2 uploaded files
-    form_data.append('usecoords', $("#spreadRefinementCheck")[0].checked); // The state of the 'Spread refinement' check box
+    form_data.append('usecoords', $("#spreadRefinementCheck")[0].checked);
+    form_data.append('merge', $("#mergeSingletonsCheck")[0].checked);
     var tree_format = $("#upload-file-type-select").val();
     if (tree_format == null) {
       alert('Please specify the file format of the gene tree.');
@@ -65,7 +66,7 @@ function setupParametersPane() {
     }
     form_data.append('treeformat', tree_format);
     var param_data = {'ILS':ilsSpin.spinner('value'), 'dups':dupsSpin.spinner('value'),
-      'loss':lossSpin.spinner('value'), 'spread':spreadSpin.spinner('value')};
+      'loss':lossSpin.spinner('value'), 'spread':spreadSpin.spinner('value'), 'merge':$("#mergeSingletonsCheck")[0].checked};
     results_processed = false;
     $("#summaryText").html('<p>Uploading and processing files...</p>');
     $.ajax({

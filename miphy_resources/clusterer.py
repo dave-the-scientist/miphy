@@ -24,14 +24,27 @@ class Clusterer(object):
         if verbose: print('Finished setting up the clusterer.')
 
     # # # # #  Main method:
-    def cluster(self, i_coefficient=0.5, d_coefficient=1.0, l_coefficient=1.0, spread_coefficient=1.0):
+    def cluster(self, i_coefficient=0.5, d_coefficient=1.0, l_coefficient=1.0, spread_coefficient=1.0, merge_singletons=False):
         self.nodes = {}
         params = {'i_coef':float(i_coefficient), 'd_coef':float(d_coefficient),
             'l_coef':float(l_coefficient), 'm_coef':float(l_coefficient),
             'spread_coef':float(spread_coefficient)}
         self._calc_clusters(self.gene_root, params)
+        # Refine clusters
+        avg_spread = None
         if self.use_coords:
-            self._refine_clusters(params)
+            spreads = [self.spread_calc(clstr) for clstr in self.nodes[self.gene_root].clusters if len(clstr) != 1]
+            if self.relative_avg == 'median':
+                spreads.sort()
+                med_i = (len(spreads)+1)//2-1
+                avg_spread = (spreads[med_i] + spreads[-med_i-1])/2.0
+            elif self.relative_avg == 'mean':
+                avg_spread = sum(spreads) / float(len(spreads))
+            self._recalc_clusters(self.gene_root, params, avg_spread)
+        # Merge singletons
+        if merge_singletons:
+            self._merge_singletons(avg_spread)
+        # Process clusters and scores
         self.nodes[self.gene_root].cluster_roots.sort(key=lambda n: self.nodes[n].total_score)
         self.nodes[self.gene_root].clusters = [sorted(self.nodes[node].clusters[0]) \
             for node in self.nodes[self.gene_root].cluster_roots]
@@ -154,17 +167,6 @@ class Clusterer(object):
         return max( \
             len(set( self.recent_common_ancestor((g, m)) for m in missing if m not in present)) \
             for g in present)
-    def _refine_clusters(self, params):
-        spreads = [self.spread_calc(clstr) for clstr in self.nodes[self.gene_root].clusters if len(clstr) != 1]
-        if self.relative_avg == 'median':
-            spreads.sort()
-            med_i = (len(spreads)+1)//2-1
-            avg_spread = (spreads[med_i] + spreads[-med_i-1])/2.0
-        elif self.relative_avg == 'mean':
-            avg_spread = sum(spreads) / float(len(spreads))
-        else:
-            raise MiphyRuntimeError('Incorrect value ({}) given for the "relative_avg" attribute; must be either "mean" or "median".'.format(self.relative_avg))
-        self._recalc_clusters(self.gene_root, params, avg_spread)
     def _recalc_clusters(self, node, params, avg_spread):
         """Overwrites the .clusters and .cluster_roots atts of the nodes, and
         modifies total_score."""
@@ -182,8 +184,8 @@ class Clusterer(object):
         comb_total_score = n._combined_event_score + comb_spread_score*params['spread_coef']
         n._combined_total_score = comb_total_score
         n._separate_total_score = child1.total_score + child2.total_score
-        if child1.total_score + child2.total_score < comb_total_score:
-            n.total_score = child1.total_score + child2.total_score
+        if n._separate_total_score < comb_total_score:
+            n.total_score = n._separate_total_score
             n.clusters = child1.clusters + child2.clusters
             n.cluster_roots = child1.cluster_roots + child2.cluster_roots
             n.spread = None
@@ -193,7 +195,51 @@ class Clusterer(object):
             n.cluster_roots = [node]
             n.spread = comb_spread_score
         return n
-
+    def _merge_singletons(self, avg_spread):
+        # Updates self.nodes[self.gene_root].cluster_roots and self.nodes[self.gene_root].clusters
+        clstr_rts = self.nodes[self.gene_root].cluster_roots[::]
+        clstrs = [clstr[::] for clstr in self.nodes[self.gene_root].clusters]
+        am_done = False
+        while not am_done:
+            for ind in range(len(clstrs)):
+                if len(clstrs[ind]) == 1:
+                    singleton = self.nodes[clstr_rts[ind]]
+                    # #  Find parent and sibling
+                    for parent_node, sib_nodes in self.gene_children.items():
+                        if singleton.node in sib_nodes:
+                            break
+                    else:
+                        print('Error: could not find the sibling of node {}. Singletons were not merged.'.format(singleton.node))
+                        return
+                    parent = self.nodes[parent_node]
+                    sib = self.nodes[sib_nodes[1]] if sib_nodes[0] == singleton.node else self.nodes[sib_nodes[0]]
+                    # #  Update parent to force combined MIG instead of separate
+                    parent.total_score = parent._combined_total_score
+                    parent.clusters = [list(parent.leaves)]
+                    parent.cluster_roots = [parent_node]
+                    parent.spread = self.spread_calc(parent.leaves, avg_spread)
+                    # #  Update central data to reflect new cluster
+                    inds_to_del = set()
+                    for clus in sib.clusters:
+                        if clus in clstrs:
+                            inds_to_del.add(clstrs.index(clus))
+                        else: # Happens sometimes when clstrs has been modified but node.clusters hasn't for nodes not direct parents of any cluster. Might only be for clusters that SHOULD span the root.
+                            clus_set = set(clus)
+                            for clstr_ind, clstr in enumerate(clstrs):
+                                if len(clus_set & set(clstr)) > 0:
+                                    inds_to_del.add(clstr_ind)
+                    inds_to_del.add(ind)
+                    inds_to_del = sorted(inds_to_del, reverse=True)
+                    for to_del in inds_to_del:
+                        del clstrs[to_del]
+                        del clstr_rts[to_del]
+                    clstr_rts.append(parent_node)
+                    clstrs.append(list(parent.leaves))
+                    break # Have to kick out of the loop, as list indices are now corrupted
+            else:
+                am_done = True # No break encountered, no singletons left
+        self.nodes[self.gene_root].cluster_roots = clstr_rts
+        self.nodes[self.gene_root].clusters = clstrs
     def _cluster_std_dev(self, cluster, avg_std_dev=None):
         if len(cluster) == 1:
             return self.singleton_spread

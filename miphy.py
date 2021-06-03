@@ -15,7 +15,7 @@ from miphy_resources.miphy_instance import MiphyInstance
 
 
 __author__ = 'David Curran'
-__version__ = '0.9.2'
+__version__ = '1.0.1'
 
 
 def setup_parser():
@@ -159,6 +159,9 @@ if __name__ == '__main__':
     gene_tree_data = open(gene_tree_file).read().strip()
     info_data = open(info_file).read()
     options = validate_options(parser, opts)
+
+    merge_singles = False
+
     if options['results_file']: # Don't need to start the MIPhy server.
         mi = MiphyInstance(gene_tree_data, info_data, gene_tree_format=options['tree_format'], allowed_wait={}, use_coords=options['use_coords'], coords_file=options['coords_file'], verbose=opts.verbose)
         mi.processed(options['params'])
@@ -168,7 +171,7 @@ if __name__ == '__main__':
         print('\nInstability scores saved to %s' % options['results_file'])
     else: # Start the MIPhy server.
         daemon = miphy_daemon.Daemon(options['server_port'], web_server=False, instance_timeout_inf=opts.manual_browser, verbose=opts.verbose)
-        idnum = daemon.new_instance(gene_tree_data, info_data, gene_tree_format=options['tree_format'], use_coords=options['use_coords'], coords_file=options['coords_file'])
+        idnum = daemon.new_instance(gene_tree_data, info_data, gene_tree_format=options['tree_format'], merge_singletons=merge_singles, use_coords=options['use_coords'], coords_file=options['coords_file'])
         daemon.process_instance(idnum, options['params'])
         results_url = 'http://127.0.0.1:%i/results?%s' % (options['server_port'], idnum)
         if opts.manual_browser:

@@ -16,7 +16,7 @@ setup(
     version=mi_v,
 
     author="Dave Curran",
-    author_email="dmcurran@ucalgary.ca",
+    author_email="daves.binf.tools@gmail.com",
     url="https://github.com/dave-the-scientist/miphy",
 
     packages=["miphy_resources"],
@@ -25,10 +25,10 @@ setup(
     # Include additional files into the package
     include_package_data=True,
 
-    # license="LICENSE.txt",
+    license="LICENSE.txt",
     description="Useful towel-related stuff.",
 
-    # long_description=open("README.txt").read(),
+    long_description=open("README.txt").read(),
 
     # Dependent packages (distributions)
     install_requires=[

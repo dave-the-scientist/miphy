@@ -6,8 +6,9 @@ from miphy_resources import phylo
 
 
 class MiphyInstance(object):
-    def __init__(self, gene_tree_data, info_data, gene_tree_format, allowed_wait, use_coords, coords_file, verbose, refine_limit=None):
+    def __init__(self, gene_tree_data, info_data, gene_tree_format, allowed_wait, merge_singletons, use_coords, coords_file, verbose, refine_limit=None):
         self.clusters, self.scores, self.cluster_list, self.init_weights = {}, {}, {}, []
+        self.merge_singletons = merge_singletons
         self.use_coords = use_coords
         self.verbose = verbose
         self.species_tree_data, self.species_mapping = self.parse_species_tree_mapping(info_data)
@@ -37,7 +38,7 @@ class MiphyInstance(object):
         # params should be a tuple of floats in this order: (ils, dup, loss, spread).
         if self.been_processed or self.html_loaded:
             raise MiphyRuntimeError('miphy instance cannot be processed twice, and must be processed before being loaded by the results page.')
-        self.init_weights = list(params)
+        self.init_weights = list(params[:4])
         self.cluster(params)
         self.been_processed = True
         self.last_maintained = time.time()
@@ -51,7 +52,7 @@ class MiphyInstance(object):
             raise MiphyRuntimeError('miphy instance should not be maintained before being processed and loaded by the results page.')
         self.last_maintained = time.time()
     def cluster(self, params):
-        # params should be a tuple of floats in this order: (ils, dup, loss, spread).
+        # params should be a tuple of 4 floats and 1 bool in this order: (ils, dup, loss, spread, merge).
         if params not in self.clusters:
             t0 = time.time()
             self.clusters[params], self.scores[params] = self.clusterer.cluster(*params)

@@ -1333,6 +1333,7 @@ Smits.PhyloCanvas.Render.SVG.prototype = {
 			}
 
 			if(node.name){ // draw bootstrap values
+				/* Uncomment to include bootstraps
 				var attr = {};
 				attr = Smits.PhyloCanvas.Render.Style.getStyle('bootstrap', 'text');
 				if(node.uri) { attr.href = node.uri };
@@ -1352,6 +1353,7 @@ Smits.PhyloCanvas.Render.SVG.prototype = {
 						}
 					)
 				);
+				*/
 			}
 
 			if(node.children && node.children.length){

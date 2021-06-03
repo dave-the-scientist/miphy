@@ -35,8 +35,9 @@
 
       <div id="header" class="dark-bg">
         <div id="headerContainer">
-          <a href="/"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
-          <h2 id="headerSubtitle">/&#712ma&#618&#712fa&#618/ - Minimizing Instability in Phylogenetics</h2>
+          <a href="/" target="_blank"><img id="headerImg" src="static/images/miphy_icon_bw.png" /></a>
+          <h2 id="headerSubtitle">/&#712;ma&#618;&#712;fa&#618;/ - Minimizing Instability in Phylogenetics</h2>
+
         </div>
         <div class="clearfix"></div>
       </div>
@@ -75,6 +76,8 @@
           </tbody></table>
           <button id="paramResetButton">Reset weights</button>
           <label><input id="spreadRefinementCheck" type="checkbox" checked /><b>Spread refinement</b></label>
+          <div class="clearfix"></div>
+          <label title="Force singletons to merge with their sibling MIGs"><input id="mergeSingletonsCheck" type="checkbox" />Merge singletons</label>
           <form id="upload-files" method="post" enctype="multipart/form-data">
             <label for="tree-file"><b>Upload a gene tree file</b></label>
             <input id="upload-tree-input" name="tree-file" type="file">

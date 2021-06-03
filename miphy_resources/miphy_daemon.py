@@ -129,6 +129,7 @@ class Daemon(object):
                 gene_tree_data = request.files['tree-file'].read()
                 info_data = request.files['info-file'].read()
                 use_coords = request.form['usecoords']
+                merge = True if request.form['merge'] == 'true' else False
                 gene_tree_format = request.form['treeformat']
             except Exception as err:
                 return (str(err), 552)
@@ -136,7 +137,7 @@ class Daemon(object):
             elif use_coords == 'false': use_coords = False
             else: return ('error parsing usecoords value: "%s"' % use_coords, 552)
             try:
-                idnum = self.new_instance(gene_tree_data, info_data, gene_tree_format, use_coords=use_coords)
+                idnum = self.new_instance(gene_tree_data, info_data, gene_tree_format, merge_singletons=merge, use_coords=use_coords)
             except MiphyValidationError as err:
                 return (str(err), 550)
             except PhyloValueError as err:
@@ -157,8 +158,8 @@ class Daemon(object):
         def process_data():
             mi, idnum, msg = self.get_instance()
             if mi == None: return msg
-            params = [request.form['ILS'], request.form['dups'], request.form['loss'], request.form['spread']]
-            params = tuple(map(float, params))
+            merge = True if request.form['merge'] == 'true' else False
+            params = (float(request.form['ILS']), float(request.form['dups']), float(request.form['loss']), float(request.form['spread']), merge)
             mi.processed(params)
             numseqs = mi.num_sequences
             return json.dumps({'numseqs':numseqs, 'numspc':len(mi.species),
@@ -175,14 +176,14 @@ class Daemon(object):
             info = {'maintainwait':self.maintain_wait*1000, 'speciestree':mi.species_tree_data,
                 'specieslist':mi.species, 'treedata':mi.tree_data, 'initweights':mi.init_weights,
                 'sequencenames':mi.sequence_names, 'seqspecies':mi.species_mapping,
-                'webversion':self.web_server, 'usecoords':mi.use_coords}
+                'webversion':self.web_server, 'merge':mi.merge_singletons, 'usecoords':mi.use_coords}
             return json.dumps(info)
         @self.server.route(daemonURL('/cluster-tree'), methods=['POST'])
         def cluster_tree():
             mi, idnum, msg = self.get_instance()
             if mi == None: return msg
-            params = (float(request.form['ILS']), float(request.form['dups']),
-                    float(request.form['loss']), float(request.form['spread']))
+            merge = True if request.form['merge'] == 'true' else False
+            params = (float(request.form['ILS']), float(request.form['dups']), float(request.form['loss']), float(request.form['spread']), merge)
             mi.cluster(params)
             return json.dumps(mi.cluster_list[params])
         @self.server.route(daemonURL('/page-loaded'), methods=['POST'])
@@ -217,13 +218,13 @@ class Daemon(object):
             return render_template('/monitor.html')
         # # #  END OF TESTING.
 
-    def new_instance(self, gene_tree_data, info_data, gene_tree_format, use_coords=True, coords_file=''):
+    def new_instance(self, gene_tree_data, info_data, gene_tree_format, merge_singletons=False, use_coords=True, coords_file=''):
         if type(info_data) == bytes:
             info_data = info_data.decode()
         if type(gene_tree_data) == bytes:
             gene_tree_data = gene_tree_data.decode()
         idnum = self.generateSessionID()
-        self.sessions[idnum] = MiphyInstance(gene_tree_data, info_data, gene_tree_format, self.allowed_wait, use_coords, coords_file, self.verbose, refine_limit=self.server_refine_limit)
+        self.sessions[idnum] = MiphyInstance(gene_tree_data, info_data, gene_tree_format, self.allowed_wait, merge_singletons, use_coords, coords_file, self.verbose, refine_limit=self.server_refine_limit)
         return idnum
     def process_instance(self, idnum, params):
         self.sessions[idnum].processed(params)

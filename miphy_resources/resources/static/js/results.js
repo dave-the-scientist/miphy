@@ -18,8 +18,6 @@
   -- Seems to happen frequently if I run it with the WiFi turned off.
 
    * Technical to-do *
--- The more times a tree is re-drawn (either by changing weights or by changing colours), the more extreme the action of the +/- zoom buttons.
-   -- BUG: I'm almost certain it's because every time redrawTree() is called, it calls setupInteractions(), which adds handlers to those buttons. I'm betting those handler calls are stacking.
 -- If there are many species, the legend is tall, and the tree should hug the top. If their names are long, it is wide, and the tree should hug the left side of the screen.
   -- The program should make this decision based on the measured lengths (or maybe a drawing option).
 -- Mouseover on the search highlight shape should be the same as mouseover on the cluster (ideally), or perhaps just that sequence.
@@ -67,7 +65,7 @@ var server_url='http://'+window.location.host, session_id='',
 // Globals from Python backend:
 var species=[], sequenceIDs=[], sequence_species={}, species_colours={},
     cluster_list=[], init_weights=[], num_sequences, original_tree_data,
-    tree_data, species_tree_data, use_coords, web_version;
+    tree_data, species_tree_data, merge_singletons, use_coords, web_version;
 // Useful globals:
 var r_paper, legend_paper, panZoom, seqs = {}, clusters = {},
     cur_params = [], prev_params = [];
@@ -114,9 +112,11 @@ function parseData(data_obj) {
   init_weights = data.initweights;
   sequenceIDs = data.sequencenames;
   species = data.specieslist;
+  merge_singletons = data.merge;
+  $("#mergeSingletonsCheck").prop('checked', merge_singletons);
   use_coords = data.usecoords;
   web_version = data.webversion;
-  cur_params = prev_params = init_weights;
+  cur_params = prev_params = [...init_weights, data.merge];
   for (var i=0; i<species.length; ++i) {
     species_colours[species[i]] = opts.colours.species[i % opts.colours.species.length];
   }
@@ -167,7 +167,7 @@ function reclusterTree() {
     url: daemonURL('/cluster-tree'),
     type: 'POST',
     data: {'session_id': session_id, 'ILS':cur_params[0], 'dups':cur_params[1],
-      'loss':cur_params[2], 'spread':cur_params[3]},
+      'loss':cur_params[2], 'spread':cur_params[3], 'merge':$("#mergeSingletonsCheck")[0].checked},
     success: function(data) {
       cluster_list = $.parseJSON(data);
       if (clusters) { clearClusters(); }
@@ -691,7 +691,7 @@ function setupParametersPane() {
     if (validate(ilsSpin, 'ILS') && validate(dupsSpin, 'Duplications') &&
       validate(lossSpin, 'Gene loss') && validate(spreadSpin, 'Variance')) {
       var temp = [ilsSpin.spinner('value'), dupsSpin.spinner('value'),
-        lossSpin.spinner('value'), spreadSpin.spinner('value')];
+        lossSpin.spinner('value'), spreadSpin.spinner('value'), $("#mergeSingletonsCheck")[0].checked];
       if (!arraysEqual(cur_params, temp)) {
         prev_params = cur_params;
         cur_params = temp;
@@ -707,6 +707,7 @@ function setupParametersPane() {
       dupsSpin.spinner('value', prev_params[1]);
       lossSpin.spinner('value', prev_params[2]);
       spreadSpin.spinner('value', prev_params[3]);
+      $("#mergeSingletonsCheck").prop('checked', prev_params[4]);
       cur_params = prev_params;
       prev_params = temp;
       reclusterTree();
@@ -717,6 +718,7 @@ function setupParametersPane() {
     dupsSpin.spinner('value', init_weights[1]);
     lossSpin.spinner('value', init_weights[2]);
     spreadSpin.spinner('value', init_weights[3]);
+    $("#mergeSingletonsCheck").prop('checked', merge_singletons);
     if (!arraysEqual(cur_params, init_weights)) {
       prev_params = cur_params;
       cur_params = init_weights;
