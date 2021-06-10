@@ -39,10 +39,10 @@ setup(
 import os
 egg_dir = 'MIPhy.egg-info'
 if not os.path.isdir(egg_dir):
-    print('\nAttempting to check file permissions in %s/, but the folder was not found.' % egg_dir)
+    print('\nAttempting to check file permissions in {}/, but the folder was not found.'.format(egg_dir))
 else:
     for fname in os.listdir(egg_dir):
         fpath = os.path.join(egg_dir, fname)
         prmsn = oct(os.stat(fpath).st_mode & 0o777)
         if int(prmsn[-1]) < 4:
-            print('\nWarning: file %s with permission %s does not allow global reading; change its permissions (666 should work) and re-run this setup.py to avoid installation issues for users.' % (fpath, prmsn))
+            print('\nWarning: file {} with permission {} does not allow global reading; change its permissions (666 should work) and re-run this setup.py to avoid installation issues for users.'.format(fpath, prmsn))
