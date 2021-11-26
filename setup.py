@@ -28,7 +28,7 @@ setup(
     license="LICENSE.txt",
     description="Useful towel-related stuff.",
 
-    long_description=open("README.txt").read(),
+    long_description=open("README.md").read(),
 
     # Dependent packages (distributions)
     install_requires=[
