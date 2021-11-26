@@ -639,7 +639,7 @@ class Tree(object):
         values, vectors = np.linalg.eigh(m_mat)
         tokeep = max(len(values) - max_dimensions, 0) if max_dimensions else 0
         values, vectors = values[tokeep:], vectors[:,range(tokeep, len(values))]
-        coords = np.column_stack(vectors[:,i]*np.sqrt(val) for i, val in enumerate(values) if val > 1e-5)
+        coords = np.column_stack([vectors[:,i]*np.sqrt(val) for i, val in enumerate(values) if val > 1e-5])
         return names, coords
 
     # # #  Newick parsing and saving functions

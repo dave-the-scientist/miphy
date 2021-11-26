@@ -118,7 +118,11 @@ function parseData(data_obj) {
   web_version = data.webversion;
   cur_params = prev_params = [...init_weights, data.merge];
   for (var i=0; i<species.length; ++i) {
-    species_colours[species[i]] = opts.colours.species[i % opts.colours.species.length];
+    if (species[i] in data.speciescolours) {
+      species_colours[species[i]] = data.speciescolours[species[i]];
+    } else {
+      species_colours[species[i]] = opts.colours.species[i % opts.colours.species.length];
+    }
   }
   num_sequences = sequenceIDs.length;
   seqs = {};

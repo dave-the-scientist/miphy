@@ -11,7 +11,10 @@ class MiphyInstance(object):
         self.merge_singletons = merge_singletons
         self.use_coords = use_coords
         self.verbose = verbose
-        self.species_tree_data, self.species_mapping = self.parse_species_tree_mapping(info_data)
+        self.species_tree_data = ''
+        self.species_mapping = {}
+        self.species_colours = {}
+        self.parse_species_tree_mapping_colours(info_data) # fills out above 3 attributes
         if self.verbose: print('Finished parsing the info file.')
         self.species = sorted(list(set(self.species_mapping.values())))
         if gene_tree_format == 'auto':
@@ -77,11 +80,14 @@ class MiphyInstance(object):
         return True
 
     # # #  Data parsing:
-    def parse_species_tree_mapping(self, info_data):
+    def parse_species_tree_mapping_colours(self, info_data):
         info = self.parse_info_data(info_data)
-        species_tree_data = ''.join(info['species tree'])
-        species_mapping = {}
-        for line in info['species assignments']:
+        tree_tag, map_tag, colours_tag = 'species tree', 'species assignments', 'species colours'
+        if 'species colors' in info:
+            colours_tag = 'species colors'
+        self.species_tree_data = ''.join(info[tree_tag])
+        self.species_mapping = {}
+        for line in info[map_tag]:
             line = line.strip()
             if not line:
                 continue
@@ -95,11 +101,41 @@ class MiphyInstance(object):
             for gene in genes.split(','):
                 gene = gene.strip()
                 if not gene: continue
-                if gene in species_mapping: # don't quit, just return error code. miphy.py can quit; server daemon never does.
+                if gene in self.species_mapping: # don't quit, just return error code. miphy.py can quit; server daemon never does.
                     print('In info file %s, gene "%s" was assigned to more than 1 species.' % (info_data, gene))
                     exit()
-                species_mapping[gene] = spc
-        return species_tree_data, species_mapping
+                self.species_mapping[gene] = spc
+        self.species = sorted(list(set(self.species_mapping.values())))
+        self.species_colours = {}
+        if colours_tag in info:
+            for line in info[colours_tag]:
+                line = line.strip()
+                if not line:
+                    continue
+                elif '=' in line:
+                    spc, _, clr = line.partition('=')
+                    spc, clr = spc.strip(), clr.strip()
+                    if spc not in self.species:
+                        print('Warning: could not set colour for species "{}" as it was unrecognized.'.format(spc))
+                        continue
+                    if clr[0] == '#':
+                        if len(clr) == 4:
+                            hex_clr = '#' + clr[1]*2 + clr[2]*2 + clr[3]*2
+                        else:
+                            hex_clr = clr
+                    elif clr.count(',') == 2:
+                        try:
+                            r, g, b = clr.split(',')
+                            r, g, b = int(r.strip()), int(g.strip()), int(b.strip())
+                            hex_clr = '#' + format(r, 'X') + format(g, 'X') + format(b, 'X')
+                        except ValueError:
+                            print('Warning: could not set colour for species "{}" as the colour "{}" could not be interpreted.'.format(spc, clr))
+                            continue
+                    else:
+                        print('Warning: could not interpret line in the information file "{}".'.format(line))
+                        continue
+                    self.species_colours[spc] = hex_clr
+
     def parse_info_data(self, info_data):
         info = {}
         group, buff = '', []

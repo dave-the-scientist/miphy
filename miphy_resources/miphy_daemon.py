@@ -174,9 +174,10 @@ class Daemon(object):
             mi, idnum, msg = self.get_instance()
             if mi == None: return msg
             info = {'maintainwait':self.maintain_wait*1000, 'speciestree':mi.species_tree_data,
-                'specieslist':mi.species, 'treedata':mi.tree_data, 'initweights':mi.init_weights,
-                'sequencenames':mi.sequence_names, 'seqspecies':mi.species_mapping,
-                'webversion':self.web_server, 'merge':mi.merge_singletons, 'usecoords':mi.use_coords}
+                'specieslist':mi.species, 'treedata':mi.tree_data, 'speciescolours':mi.species_colours,
+                'initweights':mi.init_weights, 'sequencenames':mi.sequence_names, 
+                'seqspecies':mi.species_mapping, 'webversion':self.web_server,
+                'merge':mi.merge_singletons, 'usecoords':mi.use_coords}
             return json.dumps(info)
         @self.server.route(daemonURL('/cluster-tree'), methods=['POST'])
         def cluster_tree():
