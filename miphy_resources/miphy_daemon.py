@@ -8,15 +8,21 @@ from miphy_resources.phylo import PhyloValueError
 
 if sys.version_info >= (3,0): # Python 3.x imports
     from io import StringIO
-    from tkinter import Tk as tk_root
-    from tkinter.filedialog import asksaveasfilename as saveAs
+    try:
+        from tkinter import Tk as tk_root
+        from tkinter.filedialog import asksaveasfilename as saveAs
+    except ImportError:
+        saveAs = None
 else: # Python 2.x imports
     try:
         from cStringIO import StringIO
     except ImportError:
         from StringIO import StringIO
-    from Tkinter import Tk as tk_root
-    from tkFileDialog import asksaveasfilename as saveAs
+    try:
+        from Tkinter import Tk as tk_root
+        from tkFileDialog import asksaveasfilename as saveAs
+    except ImportError:
+        saveAs = None
 
 def daemonURL(url):
     return '/daemon' + url
@@ -95,10 +101,18 @@ class Daemon(object):
             return render_template('index.html')
         @self.server.route(daemonURL('/save-svg-locally'), methods=['POST'])
         def save_svg():
+            default_filename = 'miphy_tree.svg'
             svgData = request.form['svgData'].encode('UTF-8')
-            root = tk_root()
-            filename = saveAs()
-            root.destroy()
+            if saveAs == None:
+                filename = os.path.join(os.getcwd(), default_filename)
+            else:
+                try:
+                    root = tk_root()
+                    root.withdraw()
+                    filename = saveAs(initialdir=os.getcwd(), initialfile=default_filename)
+                    root.destroy()
+                except:
+                    filename = os.path.join(os.getcwd(), default_filename)
             if filename:
                 if not filename.endswith('.svg'):
                     filename += '.svg'
@@ -110,9 +124,17 @@ class Daemon(object):
             return ret_msg
         @self.server.route(daemonURL('/save-csv-locally'), methods=['POST'])
         def save_csv():
-            root = tk_root()
-            filename = saveAs()
-            root.destroy()
+            default_filename = 'miphy_data.csv'
+            if saveAs == None:
+                filename = os.path.join(os.getcwd(), default_filename)
+            else:
+                try:
+                    root = tk_root()
+                    root.withdraw()
+                    filename = saveAs(initialdir=os.getcwd(), initialfile=default_filename)
+                    root.destroy()
+                except:
+                    filename = os.path.join(os.getcwd(), default_filename)
             if filename:
                 csvStr = request.form['csvStr'].encode('UTF-8')
                 if not filename.endswith('.csv'):
@@ -175,7 +197,7 @@ class Daemon(object):
             if mi == None: return msg
             info = {'maintainwait':self.maintain_wait*1000, 'speciestree':mi.species_tree_data,
                 'specieslist':mi.species, 'treedata':mi.tree_data, 'speciescolours':mi.species_colours,
-                'initweights':mi.init_weights, 'sequencenames':mi.sequence_names, 
+                'initweights':mi.init_weights, 'sequencenames':mi.sequence_names,
                 'seqspecies':mi.species_mapping, 'webversion':self.web_server,
                 'merge':mi.merge_singletons, 'usecoords':mi.use_coords}
             return json.dumps(info)
