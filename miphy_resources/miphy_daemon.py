@@ -6,6 +6,8 @@ from miphy_resources.miphy_instance import MiphyInstance
 from miphy_resources.miphy_common import MiphyValidationError, MiphyRuntimeError
 from miphy_resources.phylo import PhyloValueError
 
+## IF STILL not working on MacOSX (actually, do this anyways), add a command line option to specify a download location. if flag is given but empty, means cwd. if flag not given, tkinter is loaded and user can specify. If location is specified, tkinter is never imported; when saving check if file exists, increment filename to avoid overwriting. If no flag is given, and tkinter fails to import (if user doesn't have it), should default to specifying location as cwd.
+
 if sys.version_info >= (3,0): # Python 3.x imports
     from io import StringIO
     try:
@@ -23,6 +25,7 @@ else: # Python 2.x imports
         from tkFileDialog import asksaveasfilename as saveAs
     except ImportError:
         saveAs = None
+
 
 def daemonURL(url):
     return '/daemon' + url
@@ -84,6 +87,7 @@ class Daemon(object):
         static_dir = os.path.join(resources_dir, 'static')
         self.server = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
         self.server.config['MAX_CONTENT_LENGTH'] = max_upload_size
+
         # # #  Server listening routes:
         @self.server.before_first_request
         def setup_tasks():
@@ -118,6 +122,7 @@ class Daemon(object):
                     filename += '.svg'
                 with open(filename, 'wb') as f:
                     f.write(svgData)
+                print('Tree image saved to {}'.format(filename))
                 ret_msg = 'Svg file saved to %s' % (filename)
             else:
                 ret_msg = 'File not saved.'
@@ -141,6 +146,7 @@ class Daemon(object):
                     filename += '.csv'
                 with open(filename, 'wb') as f:
                     f.write(csvStr)
+                print('Score data saved to {}'.format(filename))
                 return 'Csv file saved to %s' % (filename)
             else:
                 return 'Csv file not saved, as no filename was chosen.'
@@ -328,3 +334,6 @@ class Daemon(object):
                     self.error_occurred = True
                     print('\nError encountered:\n%s' % line.strip())
                 self.error_log.append(line)
+    def shutdown(self):
+        if self.tk_root:
+            self.tk_root.destroy()
