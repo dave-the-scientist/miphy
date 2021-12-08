@@ -49,12 +49,13 @@ class Daemon(object):
     558 - Unknown error validating the user's tree.
     559 - A request was received with an unrecognized session ID.
     """
-    def __init__(self, server_port, web_server=False, instance_timeout_inf=False, verbose=False):
+    def __init__(self, server_port, web_server=False, instance_timeout_inf=False, verbose=False, downloads_dir=''):
         max_upload_size = 10*1024*1024 # 10 MB
         error_log_lines = 10000
         self.server_port = server_port
         self.web_server = web_server
         self.verbose = verbose
+        self.downloads_dir = downloads_dir
         self.sessions = {} # Holds the miphy instances, with session IDs as keys.
         if not web_server: # Running locally.
             self.sessionID_length = 5 # Length of the unique session ID used.
@@ -107,18 +108,33 @@ class Daemon(object):
         def save_svg():
             default_filename = 'miphy_tree.svg'
             svgData = request.form['svgData'].encode('UTF-8')
-            if saveAs == None:
-                filename = os.path.join(os.getcwd(), default_filename)
+            if self.downloads_dir != '':
+                # The user specified a downloads location
+                if not os.path.isdir(self.downloads_dir):
+                    os.makedirs(self.downloads_dir)
+                if os.path.isfile(os.path.join(self.downloads_dir, default_filename)):
+                    # File already exists, ensure it won't be overwritten
+                    basename = default_filename[:-4]
+                    file_ind = 2
+                    while os.path.isfile(os.path.join(self.downloads_dir, '{}_{}.svg'.format(basename, file_ind))):
+                        file_ind += 1
+                    filename = os.path.join(self.downloads_dir, '{}_{}.svg'.format(basename, file_ind))
+                else:
+                    filename = os.path.join(self.downloads_dir, default_filename)
             else:
-                try:
-                    root = tk_root()
-                    root.withdraw()
-                    filename = saveAs(initialdir=os.getcwd(), initialfile=default_filename)
-                    root.destroy()
-                except:
+                # The user didn't specify a downloads location; ask, or if unable default to cwd
+                if saveAs == None:
                     filename = os.path.join(os.getcwd(), default_filename)
+                else:
+                    try:
+                        root = tk_root()
+                        root.withdraw()
+                        filename = saveAs(initialdir=os.getcwd(), initialfile=default_filename)
+                        root.destroy()
+                    except:
+                        filename = os.path.join(os.getcwd(), default_filename)
             if filename:
-                if not filename.endswith('.svg'):
+                if not filename.lower().endswith('.svg'):
                     filename += '.svg'
                 with open(filename, 'wb') as f:
                     f.write(svgData)
@@ -130,19 +146,35 @@ class Daemon(object):
         @self.server.route(daemonURL('/save-csv-locally'), methods=['POST'])
         def save_csv():
             default_filename = 'miphy_data.csv'
-            if saveAs == None:
-                filename = os.path.join(os.getcwd(), default_filename)
+
+            if self.downloads_dir != '':
+                # The user specified a downloads location
+                if not os.path.isdir(self.downloads_dir):
+                    os.makedirs(self.downloads_dir)
+                if os.path.isfile(os.path.join(self.downloads_dir, default_filename)):
+                    # File already exists, ensure it won't be overwritten
+                    basename = default_filename[:-4]
+                    file_ind = 2
+                    while os.path.isfile(os.path.join(self.downloads_dir, '{}_{}.csv'.format(basename, file_ind))):
+                        file_ind += 1
+                    filename = os.path.join(self.downloads_dir, '{}_{}.csv'.format(basename, file_ind))
+                else:
+                    filename = os.path.join(self.downloads_dir, default_filename)
             else:
-                try:
-                    root = tk_root()
-                    root.withdraw()
-                    filename = saveAs(initialdir=os.getcwd(), initialfile=default_filename)
-                    root.destroy()
-                except:
+                # The user didn't specify a downloads location; ask, or if unable default to cwd
+                if saveAs == None:
                     filename = os.path.join(os.getcwd(), default_filename)
+                else:
+                    try:
+                        root = tk_root()
+                        root.withdraw()
+                        filename = saveAs(initialdir=os.getcwd(), initialfile=default_filename)
+                        root.destroy()
+                    except:
+                        filename = os.path.join(os.getcwd(), default_filename)
             if filename:
                 csvStr = request.form['csvStr'].encode('UTF-8')
-                if not filename.endswith('.csv'):
+                if not filename.lower().endswith('.csv'):
                     filename += '.csv'
                 with open(filename, 'wb') as f:
                     f.write(csvStr)

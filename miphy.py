@@ -15,14 +15,14 @@ from miphy_resources.miphy_instance import MiphyInstance
 
 
 __author__ = 'David Curran'
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 
 
 def setup_parser():
     usage_str = "python %prog GENE_TREE INFO_FILE [OPTIONS]\n\nCluster a gene tree into minimum instability groups (MIGs), and quantify the phylogenetic stability of each."
     version_str = "%%prog %s" % __version__
     parser = OptionParser(usage=usage_str, version=version_str)
-    parser.set_defaults(tree_format='a', dup_weight=1.0, inc_weight=0.5, loss_weight=1.0, spread_weight=1.0, use_coords=True, coords_file='', results_file='', only_species='', manual_browser=False, server_port=0, test=False, verbose=False)
+    parser.set_defaults(tree_format='a', dup_weight=1.0, inc_weight=0.5, loss_weight=1.0, spread_weight=1.0, downloads_dir='', use_coords=True, coords_file='', results_file='', only_species='', manual_browser=False, server_port=0, test=False, verbose=False)
     parser.add_option('-f', '--tree_format', dest='tree_format', type='string',
         help='File format of the given gene tree. Must be one of: a (auto-detect), n (Newick), e (NEXUS), p (PhyloXML), or x (NeXML) [default: %default]')
     parser.add_option('-i', '--inc_weight', dest='inc_weight', type='float',
@@ -33,6 +33,8 @@ def setup_parser():
         help='Cost of a gene loss event [default: %default]')
     parser.add_option('-s', '--spread_weight', dest='spread_weight', type='float',
         help='Weight given to the spread of a MIG [default: %default]')
+    parser.add_option('-w', '--downloads_dir', dest='downloads_dir', type='string',
+        help='Set the destination directory for all files downloaded from the results page, instead of setting each individually.')
     parser.add_option('-n', '--no_coords', dest='use_coords', action='store_false',
         help="Don't calculate the full pairwise distance matrix to generate coordinate points. This will cause SPREAD_WEIGHT to be ignored")
     parser.add_option('-c', '--coords_file', dest='coords_file', type='string',
@@ -42,7 +44,7 @@ def setup_parser():
     parser.add_option('-o', '--only_species', dest='only_species', type='string',
         help='A comma-separated list of species names, exactly as they appear in INFO_FILE. The clustering information from only these species will be saved to RESULTS_FILE; if not supplied all species will be saved. IMPORTANT: --results_file must be supplied with this option.')
     parser.add_option('-m', '--manual_browser', dest='manual_browser', action='store_true',
-        help="Starts the MIPhy daemon, but doesn't automatically open the results with your default web browser. A URL will be printed allowing you to access the results using your web browser of choice")
+        help="Starts the MIPhy daemon, but doesn't automatically open the results with your default web browser. A URL will be printed allowing you to access the results as normal using your web browser of choice")
     parser.add_option('-p', '--port', dest='server_port', type='int',
         help='Port used by MIPhy to communicate with the visualization page; setting to 0 will cause your OS to pick one at random [default: %default]')
     parser.add_option('--test', dest='test', action='store_true',
@@ -52,7 +54,7 @@ def setup_parser():
     return parser
 def validate_args(parser, args):
     if not len(args) == 2:
-        parser.error('incorrect number of arguments. You must supply a gene tree and an information file.')
+        parser.error('incorrect arguments. You must at minimum supply a gene tree and an information file; use the "-h" flag to see the full argument documentation.')
     gene_tree_file, info_file = os.path.realpath(args[0]), os.path.realpath(args[1])
     if not os.path.isfile(gene_tree_file):
         parser.error('could not locate the gene tree at %s.' % gene_tree_file)
@@ -83,7 +85,7 @@ def validate_options(parser, opts):
     if coords_file:
         coords_file = os.path.abspath(coords_file)
         if not use_coords:
-            parser.error('if you specify -n, you should not supply a file with -c')
+            parser.error('if you specify -n, you should not give a coords file with -c')
     if not use_coords:
         spread_weight = 0.0
     # Validate results file options.
@@ -96,7 +98,12 @@ def validate_options(parser, opts):
             parser.error('if --only_species is given, a results file must be specified with --results_file')
         only_species = only_species.split(',')
     only_species = set(only_species)
-    return {'tree_format':tree_format, 'params':(i_weight,d_weight,l_weight,spread_weight), 'server_port':server_port, 'coords_file':coords_file, 'use_coords':use_coords, 'results_file':results_file, 'only_species':only_species}
+    downloads_dir = opts.downloads_dir.strip()
+    if downloads_dir:
+        downloads_dir = os.path.abspath(downloads_dir)
+        if results_file:
+            parser.error('if --results_file is given, you should not give a downloads destination with --downloads_dir')
+    return {'tree_format':tree_format, 'params':(i_weight,d_weight,l_weight,spread_weight), 'downloads_dir':downloads_dir, 'server_port':server_port, 'coords_file':coords_file, 'use_coords':use_coords, 'results_file':results_file, 'only_species':only_species}
 
 def generate_csv(only_species, mi, params):
     # This should return the same data as the #exportButton.click() call inside setupExportPane() in results.js
@@ -170,7 +177,7 @@ if __name__ == '__main__':
             f.write(data)
         print('\nInstability scores saved to %s' % options['results_file'])
     else: # Start the MIPhy server.
-        daemon = miphy_daemon.Daemon(options['server_port'], web_server=False, instance_timeout_inf=opts.manual_browser, verbose=opts.verbose)
+        daemon = miphy_daemon.Daemon(options['server_port'], web_server=False, instance_timeout_inf=opts.manual_browser, verbose=opts.verbose, downloads_dir=options['downloads_dir'])
         idnum = daemon.new_instance(gene_tree_data, info_data, gene_tree_format=options['tree_format'], merge_singletons=merge_singles, use_coords=options['use_coords'], coords_file=options['coords_file'])
         daemon.process_instance(idnum, options['params'])
         results_url = 'http://127.0.0.1:%i/results?%s' % (options['server_port'], idnum)

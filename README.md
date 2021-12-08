@@ -41,3 +41,6 @@ Whether you use the online or local version of MIPhy, running it requires 2 inpu
     - It is specified by the line "[species colours]" or "[species colors]", followed by a line for each species.
     - Each species line has the form "Species1 = COLOR".
     - COLOR may be a hex string of the form "#FF9800", a shorthand hex string of the form "#F90", or comma-separated RGB integer values of the form "255, 152, 0".
+
+## Troubleshooting
+- MacOSX users running the local version of MIPhy may experience an error when attempting to save a tree image or phylogenetic instability scores file. The error log is generally long and ends with "libc++abi.dylib: terminating with uncaught exception of type NSException. Abort trap: 6". While the cause is a little unclear, it's most likely due to how Apple integrates with Python on your system. A workaround is to specify a downloads location with the "-w" option on the command line.
