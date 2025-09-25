@@ -170,10 +170,10 @@ if __name__ == '__main__':
     merge_singles = False
 
     if options['results_file']: # Don't need to start the MIPhy server.
-        mi = MiphyInstance(gene_tree_data, info_data, gene_tree_format=options['tree_format'], allowed_wait={}, use_coords=options['use_coords'], coords_file=options['coords_file'], verbose=opts.verbose)
+        mi = MiphyInstance(gene_tree_data, info_data, gene_tree_format=options['tree_format'], allowed_wait={}, merge_singletons=merge_singles, use_coords=options['use_coords'], coords_file=options['coords_file'], verbose=opts.verbose)
         mi.processed(options['params'])
         data = generate_csv(options['only_species'], mi, options['params'])
-        with open(options['results_file'], 'wb') as f:
+        with open(options['results_file'], 'w') as f:
             f.write(data)
         print('\nInstability scores saved to %s' % options['results_file'])
     else: # Start the MIPhy server.
