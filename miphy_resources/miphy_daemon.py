@@ -94,7 +94,8 @@ class Daemon(object):
         def setup_tasks():
             if self.web_server: # Setup tasks to start for the web version.
                 t = threading.Thread(target=self.web_tasks)
-                t.daemon = True; t.start()
+                t.daemon = True
+                t.start()
             else: # Setup tasks to begin for the local version.
                 pass
         # #  Routes used in local version only:

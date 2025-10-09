@@ -87,6 +87,7 @@ class Clusterer(object):
         self.num_species = len(self.species)
     def validate_data(self):
         # ensure gene tree is binary.
+        # TODO check for binary here. modify phylo.py with this function (classifies nodes by num of children; all with 0 should be leaves; if zero nodes have 3 it is rooted, if one has 3 it is unrooted; all others should have 2.
         for gene in self.gene_leaves:
             if gene not in self.species_map:
                 raise MiphyValidationError('A sequence named "{}" was not mapped to a species in the information file'.format(gene))
