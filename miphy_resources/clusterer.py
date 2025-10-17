@@ -59,6 +59,8 @@ class Clusterer(object):
 
     # # # # #  Option parsing and checking methods:
     def parse_gene_tree(self, gene_tree, coords_file):
+        if gene_tree.is_binary == False:
+            raise MiphyValidationError('the given gene tree contains polytomies; MIPhy currently cannot handle non-binary gene trees. If this functionality would be useful to you, please contact the authors to request it.')
         self.gene_leaves = gene_tree.get_named_leaves()
         self.gene_leaves_set = set(self.gene_leaves)
         self.gene_root = gene_tree.root.name
@@ -86,8 +88,6 @@ class Clusterer(object):
         self.species_paths = spc_tree.get_named_paths()
         self.num_species = len(self.species)
     def validate_data(self):
-        # ensure gene tree is binary.
-        # TODO check for binary here. modify phylo.py with this function (classifies nodes by num of children; all with 0 should be leaves; if zero nodes have 3 it is rooted, if one has 3 it is unrooted; all others should have 2.
         for gene in self.gene_leaves:
             if gene not in self.species_map:
                 raise MiphyValidationError('A sequence named "{}" was not mapped to a species in the information file'.format(gene))

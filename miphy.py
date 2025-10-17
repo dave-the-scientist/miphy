@@ -2,11 +2,9 @@
 """
 MIPhy - Minimizing Instability in Phylogenetics.
 
-This program reconciles a multi-species phylogenetic tree of some gene family
-with the underlying species tree, and clusters the gene tree into phylogenetic
-groups. These groups each receive an instability score, used as a proxy of
-adaptive evolution, indicating those that are most likely to be interacting with
-the environment.
+This program reconciles a multi-species phylogenetic tree of some gene family with the underlying species tree, and clusters the gene tree into phylogenetic groups. These groups each receive an instability score, used as a proxy of adaptive evolution, indicating those that are most likely to be interacting with the environment.
+
+For full details read the publication "MIPhy: identify and quantify rapidly evolving members of large gene families"; Curran DM, Gilleard JS, Wasmuth JD; PeerJ; May 2018.
 """
 import os, webbrowser, socket
 from optparse import OptionParser, OptionGroup
@@ -15,7 +13,7 @@ from miphy_resources.miphy_instance import MiphyInstance
 
 
 __author__ = 'David Curran'
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 
 def setup_parser():
@@ -150,8 +148,6 @@ def test_miphy():
 # When run, check number of sequences, print message warning about long run time if it's large.
     # Also that the web browser is unlikely to ever load. If that is true.
 # Create a test module. Begun with a flag, tests setup and imports, tests calculations, tests server, tests visualization.
-# Make sure this is robust. If it can't handle non-binary trees, ensure the user's trees are binary.
-  # Crashes badly on non-binary trees.
 # FOR V2:
 # - Add option to specify singleton spread?
 

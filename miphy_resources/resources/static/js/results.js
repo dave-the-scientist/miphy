@@ -1,3 +1,5 @@
+// WIP: finish species highlighting in setupInteractions()
+
 /* JS file to run the results page of MIPhy.
 -- I modified jsPhyloSVG, encapsulating the entire thing in a load function. This allows it to be reloaded without keeping data from a previous tree.
 -- Majority of processing time is in jsPhyloSVG (84%), 8% from searchHighlights, 4% drawing species markers.
@@ -33,7 +35,7 @@
 -- If the species names have bad characters (like a space or !), crashes with a bad error. No need to fix, but make the error comprehensible.
 -- Large data sets take a few seconds to visualize, so default 'results' page should have a message reading 'Calculating...', or similar.
 -- Clean up displaySummaryStats (iterates too many times right now).
--- Change Instability to Imbalance?
+-- Change Instability to Imbalance? Probably not, as that's what I use in the paper.
 -- Make sure any images loaded are alraedy at their correct width/height. saves time resizing them.
 -- When saving svg and opening in inkscape, some weirdness.
   -- The legend is tied to the document, can't be moved. Resizing the document moves it around inexplicably.
@@ -365,7 +367,7 @@ function drawLegendSpeciesMarkers(legendSvg) {
     var nodeCoords = parseLeafTextCoords(this);
     var leafX=nodeCoords[0], leafY=nodeCoords[1];
     legend_paper.circle(leafX, leafY, 4).attr({fill:species_colours[spc]});
-    txt.attr({'font':opts.fonts.legend_names+'px'});
+    txt.attr({'class':'speciesText', 'font':opts.fonts.legend_names+'px'});
   });
 }
 function calculateLegendOverlap(legendWidth, legendHeight) {
@@ -515,6 +517,37 @@ function triggerClusterListEvents(obj, clustID) {
   });
 }
 function setupInteractions() {
+  // Species highlighting
+  $('.speciesText').on({
+    "click": function() {
+      /*
+      for (var i=0; i<num_sequences; ++i) {
+        seqID = sequenceIDs[i];
+        ind = seqID.toLowerCase().indexOf(query);
+        if (query == '' || ind == -1) {
+          seqs[seqID]['searchHighlight'].hide();
+        } else {
+          numHits += 1;
+          seqs[seqID]['searchHighlight'].show();
+        }
+      }
+      */
+     // species_colours[SPECIES]
+
+     var clicked_spc = this.textContent;
+
+     var seqID, seq_spc;
+     for (var i=0; i<num_sequences; ++i) {
+      seqID = sequenceIDs[i];
+      seq_spc = sequence_species[seqID];
+      if (seq_spc == clicked_spc) {
+        seqs[seqID]['searchHighlight'].show(); // Works. I need some variable to indicate whether this is being displayed, so I can hide() it if it's already shown. This should also let me change the colour to/from the search default, to species_colours[SPECIES]
+      }
+     }
+
+    }
+  });
+
   $('.sequenceText, .sequenceNode').on({
     "click": function() {
       var settings = {items: '.sequenceText, .sequenceNode',
