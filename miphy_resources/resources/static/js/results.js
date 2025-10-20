@@ -1,4 +1,6 @@
-// WIP: finish species highlighting in setupInteractions()
+// WIP: I'd really like to have an option to disable the species ring, and one to disasble species colouring (so set all species to white). Even set both of those options by default when the number of species is large (possibly just larger than the length of the colours vector).
+// - Might be good to add a metric to the MIG panel, showing instability per sequence
+// - When clicking on single sequence, would be nice to show not just the events that led to the whole MIG, but the events that took place on the subtree from the MIG's ancestor to that particular sequence. Ex, not counting loss events that happened down another trunk of the tree.
 
 /* JS file to run the results page of MIPhy.
 -- I modified jsPhyloSVG, encapsulating the entire thing in a load function. This allows it to be reloaded without keeping data from a previous tree.
@@ -131,6 +133,7 @@ function parseData(data_obj) {
   for (var i=0; i<num_sequences; ++i) {
     seqs[sequenceIDs[i]] = {};
   }
+  search_hits = {'query':new Set(), 'species':new Set()};
 }
 function calculateDefaultSizes() {
   var max_default_font=13, max_highlight_padding=50;
@@ -167,6 +170,7 @@ function redrawTree() {
   displayTree();
   displayClusters();
   setupInteractions();
+  display_search_hits();
 }
 function reclusterTree() {
   $.ajax({
@@ -520,34 +524,17 @@ function setupInteractions() {
   // Species highlighting
   $('.speciesText').on({
     "click": function() {
-      /*
-      for (var i=0; i<num_sequences; ++i) {
-        seqID = sequenceIDs[i];
-        ind = seqID.toLowerCase().indexOf(query);
-        if (query == '' || ind == -1) {
-          seqs[seqID]['searchHighlight'].hide();
-        } else {
-          numHits += 1;
-          seqs[seqID]['searchHighlight'].show();
-        }
+      var spc = this.textContent;
+      if (search_hits['species'].has(spc)) {
+        search_hits['species'].delete(spc);
+        $(this).css('font-weight', 'normal');
+      } else {
+        search_hits['species'].add(spc);
+        $(this).css('font-weight', 'bold');
       }
-      */
-     // species_colours[SPECIES]
-
-     var clicked_spc = this.textContent;
-
-     var seqID, seq_spc;
-     for (var i=0; i<num_sequences; ++i) {
-      seqID = sequenceIDs[i];
-      seq_spc = sequence_species[seqID];
-      if (seq_spc == clicked_spc) {
-        seqs[seqID]['searchHighlight'].show(); // Works. I need some variable to indicate whether this is being displayed, so I can hide() it if it's already shown. This should also let me change the colour to/from the search default, to species_colours[SPECIES]
-      }
-     }
-
+      display_search_hits();
     }
   });
-
   $('.sequenceText, .sequenceNode').on({
     "click": function() {
       var settings = {items: '.sequenceText, .sequenceNode',
@@ -620,20 +607,23 @@ function startTooltip(settings) {
   });
 }
 function searchFunction() {
-  var query = $('#searchInput').attr('value').trim().toLowerCase();
-  var seqID, ind, numHits=0;
-  for (var i=0; i<num_sequences; ++i) {
-    seqID = sequenceIDs[i];
-    ind = seqID.toLowerCase().indexOf(query);
-    if (query == '' || ind == -1) {
-      seqs[seqID]['searchHighlight'].hide();
-    } else {
-      numHits += 1;
-      seqs[seqID]['searchHighlight'].show();
+  search_hits['query'].clear();
+  if (query == '') {
+    $("#searchHitsText").text('');
+  } else {
+    var query = $('#searchInput').attr('value').trim().toLowerCase();
+    var seqID, ind, numHits=0;
+    for (var i=0; i<num_sequences; ++i) {
+      seqID = sequenceIDs[i];
+      ind = seqID.toLowerCase().indexOf(query);
+      if (ind != -1) {
+        numHits += 1;
+        search_hits['query'].add(seqID);
+      }
     }
+    $("#searchHitsText").text(numHits+' hits');
   }
-  if (query == '') { $("#searchHitsText").text(''); }
-  else { $("#searchHitsText").text(numHits+' hits'); }
+  display_search_hits();
   return false;
 }
 function displaySummaryStats() {
@@ -867,6 +857,23 @@ function validate(spinner, description) {
     else { msg = description+" must be greater than "+min; }
     alert(msg+", and be a multiple of "+step+".");
     return false;
+  }
+}
+function display_search_hits() {
+  // in one pass go through search_hits
+  var seqID, seq_spc;
+  for (var i=0; i<num_sequences; ++i) {
+    seqID = sequenceIDs[i];
+    seq_spc = sequence_species[seqID];
+    if (search_hits['query'].has(seqID)) {
+      seqs[seqID]['searchHighlight'].attr({fill:opts.colours.search, stroke:opts.colours.search});
+      seqs[seqID]['searchHighlight'].show();
+    } else if (search_hits['species'].has(seq_spc)) {
+      seqs[seqID]['searchHighlight'].attr({fill:species_colours[seq_spc], stroke:species_colours[seq_spc]});
+      seqs[seqID]['searchHighlight'].show();
+    } else {
+      seqs[seqID]['searchHighlight'].hide();
+    }
   }
 }
 function speciesSelectChange(spc) {
